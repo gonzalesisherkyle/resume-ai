@@ -32,42 +32,83 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg shadow-brand-500/25">
-            R
+    <div className="min-h-screen bg-[var(--terminal-bg)] flex items-center justify-center px-4 font-mono">
+      <div className="scanline"></div>
+      
+      <div className="w-full max-w-md terminal-window animate-fade-in relative z-10">
+        <header className="terminal-header">
+          <div className="flex gap-2 mr-4">
+            <div className="terminal-dot bg-[#ff5f56]"></div>
+            <div className="terminal-dot bg-[#ffbd2e]"></div>
+            <div className="terminal-dot bg-[#27c93f]"></div>
           </div>
-          <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-gray-400 mt-2">Start building ATS-optimized resumes</p>
-        </div>
+          <span className="text-xs text-[var(--terminal-muted)]">auth_service --register</span>
+        </header>
 
-        <div className="card">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="p-8">
+          <div className="mb-8 font-mono">
+            <div className="text-[var(--terminal-accent)] mb-2">$ user-add --interactive</div>
+            <div className="text-[var(--terminal-text)] opacity-70 text-sm">Create a new system account.</div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="reg-name" className="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
-              <input id="reg-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className="input-field" placeholder="Jane Smith" required />
+              <label htmlFor="reg-name" className="terminal-label">Full_Name</label>
+              <input
+                id="reg-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-terminal"
+                placeholder="Jane Doe"
+                required
+              />
             </div>
             <div>
-              <label htmlFor="reg-email" className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
-              <input id="reg-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" placeholder="you@example.com" required />
+              <label htmlFor="reg-email" className="terminal-label">User_Identity (Email)</label>
+              <input
+                id="reg-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-terminal"
+                placeholder="jane@system.local"
+                required
+              />
             </div>
             <div>
-              <label htmlFor="reg-password" className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
-              <input id="reg-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" placeholder="Min 6 characters" required minLength={6} />
+              <label htmlFor="reg-password" className="terminal-label">New_Access_Token (Password)</label>
+              <input
+                id="reg-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-terminal"
+                placeholder="Min 6 characters"
+                required
+                minLength={6}
+              />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
-              {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-              {loading ? 'Creating account...' : 'Create Account'}
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-terminal btn-terminal-primary w-full py-3 flex items-center justify-center gap-2"
+            >
+              {loading && <div className="w-4 h-4 border-2 border-[var(--terminal-bg)]/30 border-t-[var(--terminal-bg)] rounded-full animate-spin" />}
+              {loading ? 'INITIALIZING...' : 'CREATE ACCOUNT'}
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-gray-400 mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-brand-400 hover:text-brand-300 font-medium">Sign in</Link>
-        </p>
+          <div className="mt-8 pt-6 border-t border-[var(--terminal-border)] flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-sm text-[var(--terminal-muted)]">
+              <span>$ system --login</span>
+              <Link to="/login" className="text-[var(--terminal-amber)] hover:underline">login.sh</Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
