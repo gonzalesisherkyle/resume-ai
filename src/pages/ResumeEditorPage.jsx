@@ -57,7 +57,7 @@ export default function ResumeEditorPage() {
       setResume(res.data.data);
       toast.success('AI content generated!');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'AI generation failed. Check your OpenAI API key.');
+      toast.error(err.response?.data?.error || 'AI generation failed');
     } finally {
       setGenerating(false);
     }
@@ -66,10 +66,10 @@ export default function ResumeEditorPage() {
   const handleScore = async () => {
     setScoring(true);
     try {
-      const res = await api.post(`/resume/${id}/score`);
+      await api.post(`/resume/${id}/score`);
       const updated = await api.get(`/resume/${id}`);
       setResume(updated.data.data);
-      toast.success(`ATS Score: ${res.data.data.overall}/100`);
+      toast.success('ATS Scan Complete');
       setActiveTab('score');
     } catch (err) {
       toast.error('Scoring failed');
@@ -85,10 +85,10 @@ export default function ResumeEditorPage() {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Resume.${format}`;
+      a.download = `resume_v${resume.activeVersionIndex + 1}.${format}`;
       a.click();
       window.URL.revokeObjectURL(url);
-      toast.success(`${format.toUpperCase()} exported!`);
+      toast.success(`${format.toUpperCase()} EXPORTED`);
     } catch (err) {
       toast.error('Export failed');
     } finally {
@@ -96,129 +96,99 @@ export default function ResumeEditorPage() {
     }
   };
 
-  const handleClone = async () => {
-    try {
-      const res = await api.post(`/resume/${id}/clone`);
-      setResume(res.data.data);
-      toast.success('Version cloned!');
-    } catch (err) {
-      toast.error('Clone failed');
-    }
-  };
-
-  const handleTailor = async () => {
-    if (!activeVersion?.jobDescription) return toast.error('Add a job description first');
-    setGenerating(true);
-    try {
-      const res = await api.post(`/resume/${id}/tailor`, { jobDescription: activeVersion.jobDescription });
-      setResume(res.data.data);
-      toast.success('Resume tailored to job!');
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Tailoring failed');
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const switchVersion = async (idx) => {
-    try {
-      const res = await api.put(`/resume/${id}`, { activeVersionIndex: idx });
-      setResume(res.data.data);
-    } catch (err) {
-      toast.error('Failed to switch version');
-    }
-  };
-
-  if (loading) return <div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+      <div className="w-12 h-1 border-b border-[var(--terminal-accent)] animate-pulse" />
+      <div className="text-[var(--terminal-muted)] text-xs font-mono">LOADING_EDITOR_ASSETS...</div>
+    </div>
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
-      {/* Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/dashboard')} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-surface-700 transition-all">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h1 className="text-xl font-bold text-white">{resume?.title}</h1>
-          {saving && <span className="text-xs text-brand-400 animate-pulse">Saving...</span>}
+    <div className="animate-fade-in font-mono">
+      {/* Editor Toolbar */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--terminal-border)]">
+        <div>
+          <div className="text-[var(--terminal-accent)] text-xs mb-1">$ workspace --active</div>
+          <h1 className="text-xl font-bold text-white uppercase tracking-tight flex items-center gap-2">
+            {resume?.title}
+            {saving && <span className="text-[10px] text-[var(--terminal-amber)] animate-pulse font-normal">[SAVING...]</span>}
+          </h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Version selector */}
-          {resume?.versions?.length > 1 && (
-            <select
-              value={resume.activeVersionIndex}
-              onChange={(e) => switchVersion(Number(e.target.value))}
-              className="bg-surface-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-300"
-            >
-              {resume.versions.map((v, i) => (
-                <option key={i} value={i}>{v.versionName}</option>
-              ))}
-            </select>
-          )}
-          <button onClick={handleClone} className="btn-secondary text-sm !py-2">Clone</button>
-          <button onClick={handleScore} disabled={scoring} className="btn-secondary text-sm !py-2 flex items-center gap-1.5">
-            {scoring && <div className="w-3 h-3 border-2 border-gray-400/30 border-t-gray-400 rounded-full animate-spin" />}
-            Score
+          <button onClick={handleScore} disabled={scoring} className="btn-terminal text-xs">
+            {scoring ? 'SCANNING...' : 'SCAN_ATS'}
           </button>
-          <button onClick={handleGenerateAI} disabled={generating} className="btn-primary text-sm !py-2 flex items-center gap-1.5">
-            {generating && <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            AI Generate
-          </button>
-          <button onClick={handleTailor} disabled={generating} className="btn-primary text-sm !py-2 bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5">
-            Tailor
+          <button onClick={handleGenerateAI} disabled={generating} className="btn-terminal text-xs">
+            {generating ? 'THINKING...' : 'AI_OPTIMIZE'}
           </button>
           <div className="relative group">
-            <button disabled={exporting} className="btn-secondary text-sm !py-2">
-              {exporting ? 'Exporting...' : 'Export ▾'}
-            </button>
-            <div className="absolute right-0 mt-1 bg-surface-800 border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 min-w-[120px]">
-              <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-700 rounded-t-lg">PDF</button>
-              <button onClick={() => handleExport('docx')} className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-700 rounded-b-lg">DOCX</button>
+            <button className="btn-terminal text-xs">EXPORT ▾</button>
+            <div className="absolute right-0 mt-1 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[100px]">
+              <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">PDF_FORMAT</button>
+              <button onClick={() => handleExport('docx')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">DOCX_FORMAT</button>
             </div>
           </div>
-          <button onClick={() => setShowChat(!showChat)} className={`btn-secondary text-sm !py-2 ${showChat ? '!border-brand-500 !text-brand-400' : ''}`}>
-            💬 Chat
-          </button>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-surface-800/50 p-1 rounded-lg w-fit">
-        {['edit', 'preview', 'score'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all capitalize ${
-              activeTab === tab ? 'bg-brand-600 text-white' : 'text-gray-400 hover:text-gray-200'
-            }`}
+          <button 
+            onClick={() => setShowChat(!showChat)} 
+            className={`btn-terminal text-xs ${showChat ? '!border-[var(--terminal-accent)] !text-[var(--terminal-accent)]' : ''}`}
           >
-            {tab}
+            CHAT_HELPER
           </button>
-        ))}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex gap-6">
-        <div className={`flex-1 min-w-0 ${showChat ? 'lg:mr-80' : ''}`}>
-          {activeTab === 'edit' && activeVersion && (
-            <ResumeForm version={activeVersion} onSave={saveResume} />
-          )}
-          {activeTab === 'preview' && activeVersion && (
-            <ResumePreview version={activeVersion} />
-          )}
-          {activeTab === 'score' && activeVersion && (
-            <ATSScoreCard score={activeVersion.atsScore} />
-          )}
+      {/* Editor Main Section */}
+      <div className="flex flex-col xl:flex-row gap-8">
+        <div className={`flex-1 min-w-0 transition-all ${showChat ? 'xl:mr-80' : ''}`}>
+          {/* Internal Tabs */}
+          <div className="flex gap-4 mb-8 border-b border-[var(--terminal-border)]">
+            {['edit', 'preview', 'score'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-2 px-1 text-xs font-bold uppercase tracking-widest transition-all relative ${
+                  activeTab === tab 
+                    ? 'text-[var(--terminal-accent)]' 
+                    : 'text-[var(--terminal-muted)] hover:text-white'
+                }`}
+              >
+                {tab}
+                {activeTab === tab && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--terminal-accent)]" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="terminal-window !bg-[var(--terminal-bg)] !border-none">
+            {activeTab === 'edit' && activeVersion && (
+              <ResumeForm version={activeVersion} onSave={saveResume} />
+            )}
+            {activeTab === 'preview' && activeVersion && (
+              <div className="bg-white rounded p-4 overflow-auto max-h-[800px]">
+                <ResumePreview version={activeVersion} />
+              </div>
+            )}
+            {activeTab === 'score' && activeVersion && (
+              <ATSScoreCard score={activeVersion.atsScore} />
+            )}
+          </div>
         </div>
 
-        {/* Chat Sidebar */}
+        {/* Floating Chat Sidebar (Internal) */}
         {showChat && (
-          <div className="hidden lg:block fixed right-0 top-16 bottom-0 w-80 border-l border-gray-700/50 bg-surface-800/95 backdrop-blur-md z-40">
-            <AIChatAssistant resumeId={id} />
+          <div className="xl:fixed xl:right-8 xl:top-32 xl:bottom-12 w-full xl:w-80 terminal-window z-30">
+            <header className="terminal-header">
+              <span className="text-[10px] uppercase font-bold text-[var(--terminal-accent)]">AI_ASSISTANT_TERMINAL</span>
+            </header>
+            <div className="h-[500px] xl:h-full overflow-hidden">
+              <AIChatAssistant resumeId={id} />
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
+

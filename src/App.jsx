@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import Navbar from './components/layout/Navbar';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import TerminalLayout from './components/layout/TerminalLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -14,27 +14,66 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface-900 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[var(--terminal-bg)] flex items-center justify-center font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-1 border-b border-[var(--terminal-accent)] animate-pulse" />
+          <div className="text-[var(--terminal-accent)] text-sm uppercase tracking-widest">Initialising_System...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-900">
-      <Navbar />
-      <main>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/resume/:id" element={<ProtectedRoute><ResumeEditorPage /></ProtectedRoute>} />
-          <Route path="/job-analyzer" element={<ProtectedRoute><JobAnalyzerPage /></ProtectedRoute>} />
-          <Route path="/score/:id" element={<ProtectedRoute><ScoreViewPage /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </main>
-    </div>
+    <Routes>
+      {/* Auth Routes - No Layout or Custom Auth Layout */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* Protected Routes - With TerminalLayout */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <TerminalLayout>
+              <DashboardPage />
+            </TerminalLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resume/:id"
+        element={
+          <ProtectedRoute>
+            <TerminalLayout>
+              <ResumeEditorPage />
+            </TerminalLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/job-analyzer"
+        element={
+          <ProtectedRoute>
+            <TerminalLayout>
+              <JobAnalyzerPage />
+            </TerminalLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/score/:id"
+        element={
+          <ProtectedRoute>
+            <TerminalLayout>
+              <ScoreViewPage />
+            </TerminalLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
+

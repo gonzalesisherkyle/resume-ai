@@ -1,54 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --terminal-bg: #0a0a0a;
+  --terminal-surface: #141414;
+  --terminal-header: #1e1e1e;
+  --terminal-accent: #00f3ff;
+  --terminal-green: #00ff41;
+  --terminal-amber: #ffb000;
+  --terminal-red: #ff5555;
+  --terminal-text: #d4d4d4;
+  --terminal-muted: #6b7280;
+  --terminal-border: #262626;
+  --terminal-selection: rgba(0, 243, 255, 0.2);
+}
+
 @layer base {
   body {
-    @apply bg-surface-900 text-gray-100 font-sans antialiased min-h-screen relative selection:bg-brand-500/30 selection:text-brand-100;
-    background-image: radial-gradient(at 40% 20%, hsla(170,100%,74%,0.1) 0px, transparent 50%), radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsla(255,100%,76%,0.1) 0px, transparent 50%);
+    @apply bg-[var(--terminal-bg)] text-[var(--terminal-text)] min-h-screen selection:bg-[var(--terminal-selection)];
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-surface-800;
+    @apply bg-[var(--terminal-bg)];
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-700 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-brand-600;
+    @apply bg-[var(--terminal-border)] border-2 border-[var(--terminal-bg)] rounded-full hover:bg-[var(--terminal-muted)];
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-300 ease-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:shadow-[0_0_10px_rgba(20,184,166,0.5),0_0_20px_rgba(20,184,166,0.3)] border border-brand-400/20;
+  .terminal-window {
+    @apply bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded-lg shadow-2xl overflow-hidden;
   }
-  .btn-secondary {
-    @apply bg-surface-800/60 hover:bg-surface-700/80 text-gray-200 font-medium py-2.5 px-5 rounded-lg border border-white/5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:shadow-[0_8px_32px_0_rgba(20,184,166,0.15)];
+
+  .terminal-header {
+    @apply bg-[var(--terminal-header)] border-b border-[var(--terminal-border)] px-4 py-2 flex items-center gap-2;
   }
-  .btn-danger {
-    @apply bg-red-900/20 hover:bg-red-800/40 text-red-400 font-medium py-2 px-4 rounded-lg border border-red-500/20 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(239,68,68,0.2)];
+
+  .terminal-dot {
+    @apply w-3 h-3 rounded-full;
   }
-  .input-field {
-    @apply w-full bg-surface-800/40 backdrop-blur-md border border-white/10 rounded-lg px-4 py-2.5 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-300 shadow-inner;
+
+  .btn-terminal {
+    @apply px-4 py-2 bg-[var(--terminal-bg)] border border-[var(--terminal-border)] text-[var(--terminal-text)] 
+           hover:border-[var(--terminal-accent)] hover:text-[var(--terminal-accent)] transition-all duration-200
+           font-mono text-sm uppercase tracking-wider disabled:opacity-50;
   }
-  .textarea-field {
-    @apply w-full bg-surface-800/40 backdrop-blur-md border border-white/10 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-300 resize-none shadow-inner;
+
+  .btn-terminal-primary {
+    @apply bg-[var(--terminal-accent)] text-[var(--terminal-bg)] border-transparent font-bold
+           hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)] hover:border-[var(--terminal-accent)];
   }
-  .card {
-    @apply bg-surface-800/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors duration-500 relative overflow-hidden;
+
+  .input-terminal {
+    @apply w-full bg-[var(--terminal-bg)] border border-[var(--terminal-border)] px-4 py-2 
+           text-[var(--terminal-text)] font-mono placeholder-[var(--terminal-muted)]
+           focus:outline-none focus:border-[var(--terminal-accent)] transition-colors;
   }
-  .card::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+
+  .terminal-label {
+    @apply block text-xs font-mono text-[var(--terminal-muted)] uppercase mb-1 tracking-widest;
   }
-  .card:hover::before {
-    @apply opacity-100;
+
+  .terminal-card {
+    @apply p-6 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] hover:border-[var(--terminal-accent)] transition-colors;
   }
-  .section-title {
-    @apply text-lg font-semibold text-gray-100 mb-4 tracking-wide;
+
+  .scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 99;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0, 0, 0, 0) 100%);
+    opacity: 0.1;
+    position: absolute;
+    bottom: 100%;
+    animation: scanline 10s linear infinite;
+    pointer-events: none;
   }
 }
+
+@keyframes scanline {
+  0% { bottom: 100%; }
+  100% { bottom: -100px; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+

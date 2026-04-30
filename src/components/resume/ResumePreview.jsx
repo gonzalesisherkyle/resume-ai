@@ -98,8 +98,12 @@ export default function ResumePreview({ version }) {
           </h2>
           {version.projects.map((proj, i) => (
             <div key={i} className="mb-3">
-              <div className="font-bold text-[1em]">
-                {proj.name}{proj.technologies ? ` | ${proj.technologies}` : ''}
+              <div className="flex justify-between items-baseline font-bold text-[1em]">
+                <span>{proj.name}{proj.technologies ? ` | ${proj.technologies}` : ''}</span>
+                <div className="flex gap-2 text-[0.85em] font-normal">
+                  {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">GitHub</a>}
+                  {proj.liveUrl && <a href={proj.liveUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Live Demo</a>}
+                </div>
               </div>
               {proj.bullets?.length > 0 && (
                 <ul className="list-disc pl-5 mt-1 space-y-[2px]">

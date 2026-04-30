@@ -15,119 +15,118 @@ export default function JobAnalyzerPage() {
     try {
       const res = await api.post('/job/analyze', { jobDescription: jobText });
       setAnalysis(res.data.data);
-      toast.success('Analysis complete!');
+      toast.success('Extraction successful');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Analysis failed. Check your OpenAI API key.');
+      toast.error(err.response?.data?.error || 'Analysis failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
-      <h1 className="text-3xl font-bold text-white mb-2">Job Description Analyzer</h1>
-      <p className="text-gray-400 mb-8">Paste a job description to extract required skills and keywords for resume optimization.</p>
-
-      {/* Input */}
-      <div className="card mb-6">
-        <label className="block text-sm font-medium text-gray-300 mb-2">Job Description</label>
-        <textarea
-          value={jobText}
-          onChange={e => setJobText(e.target.value)}
-          className="textarea-field h-48"
-          placeholder="Paste the full job description here..."
-        />
-        <button
-          onClick={analyze}
-          disabled={loading}
-          className="btn-primary mt-4 flex items-center gap-2"
-        >
-          {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-          {loading ? 'Analyzing...' : 'Analyze Job Description'}
-        </button>
+    <div className="animate-fade-in font-mono">
+      <div className="mb-10">
+        <div className="text-[var(--terminal-accent)] text-sm mb-1">$ extract --source-type=job_description</div>
+        <h1 className="text-2xl font-bold text-white uppercase tracking-wider">Entity_Extractor</h1>
+        <p className="text-[var(--terminal-muted)] text-sm mt-2">Process raw text to identify core competencies, requirements, and target metrics.</p>
       </div>
 
-      {/* Results */}
-      {analysis && (
-        <div className="space-y-6 animate-slide-up">
-          {/* Overview */}
-          <div className="card">
-            <h2 className="section-title">Role Overview</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <span className="text-xs text-gray-500 block">Title</span>
-                <span className="text-sm font-medium text-white">{analysis.title || '—'}</span>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 block">Company</span>
-                <span className="text-sm font-medium text-white">{analysis.company || '—'}</span>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 block">Level</span>
-                <span className="text-sm font-medium text-white">{analysis.level || '—'}</span>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 block">Experience</span>
-                <span className="text-sm font-medium text-white">{analysis.experience_years || '—'} years</span>
-              </div>
-            </div>
-            {analysis.summary && (
-              <p className="text-sm text-gray-300 mt-4 pt-4 border-t border-gray-700/50">{analysis.summary}</p>
-            )}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Input Terminal */}
+        <div className="terminal-window h-fit">
+          <header className="terminal-header">
+            <span className="text-[10px] uppercase font-bold">input_buffer</span>
+          </header>
+          <div className="p-6">
+            <label className="terminal-label">Raw_Description_Data</label>
+            <textarea
+              value={jobText}
+              onChange={e => setJobText(e.target.value)}
+              className="input-terminal h-64 resize-none !p-4 !text-xs leading-relaxed"
+              placeholder="PASTE_TEXT_HERE..."
+            />
+            <button
+              onClick={analyze}
+              disabled={loading}
+              className="btn-terminal btn-terminal-primary w-full mt-6 py-3 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[var(--terminal-bg)]/30 border-t-[var(--terminal-bg)] rounded-full animate-spin" />
+                  PROCESSING_STREAM...
+                </>
+              ) : (
+                'RUN_EXTRACTION'
+              )}
+            </button>
           </div>
+        </div>
 
-          {/* Required Skills */}
-          {analysis.required_skills?.length > 0 && (
-            <div className="card">
-              <h2 className="section-title text-red-400">Required Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {analysis.required_skills.map((skill, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-red-600/15 border border-red-600/30 text-red-300 rounded-lg text-sm font-medium">{skill}</span>
-                ))}
-              </div>
+        {/* Results / Log */}
+        <div className="space-y-6">
+          {!analysis && !loading && (
+            <div className="terminal-card border-dashed flex flex-col items-center justify-center py-20 opacity-30">
+              <div className="text-3xl mb-4">📡</div>
+              <div className="text-xs uppercase tracking-widest">Awaiting_Input_Data</div>
             </div>
           )}
 
-          {/* Preferred Skills */}
-          {analysis.preferred_skills?.length > 0 && (
-            <div className="card">
-              <h2 className="section-title text-yellow-400">Preferred Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {analysis.preferred_skills.map((skill, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-yellow-600/15 border border-yellow-600/30 text-yellow-300 rounded-lg text-sm font-medium">{skill}</span>
-                ))}
+          {analysis && (
+            <div className="animate-slide-up space-y-6">
+              {/* Header Info */}
+              <div className="terminal-card bg-[var(--terminal-header)]">
+                <div className="text-[10px] text-[var(--terminal-accent)] uppercase mb-4 font-bold border-b border-[var(--terminal-border)] pb-2">Record_Header</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="terminal-label">Title</div>
+                    <div className="text-white text-sm font-bold truncate">{analysis.title || 'UNKNOWN'}</div>
+                  </div>
+                  <div>
+                    <div className="terminal-label">Experience</div>
+                    <div className="text-white text-sm font-bold">{analysis.experience_years || '0'}Y_REQD</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Key Concepts */}
-          {analysis.key_concepts?.length > 0 && (
-            <div className="card">
-              <h2 className="section-title text-brand-400">Key Concepts</h2>
-              <div className="flex flex-wrap gap-2">
-                {analysis.key_concepts.map((concept, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-brand-600/15 border border-brand-600/30 text-brand-300 rounded-lg text-sm font-medium">{concept}</span>
-                ))}
+              {/* Skills Matrix */}
+              <div className="terminal-card">
+                <div className="text-[10px] text-[var(--terminal-green)] uppercase mb-4 font-bold border-b border-[var(--terminal-border)] pb-2">Requirement_Matrix</div>
+                <div className="space-y-4">
+                  <div>
+                    <div className="terminal-label text-[10px] mb-2">Hard_Requirements</div>
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.required_skills?.map((skill, i) => (
+                        <span key={i} className="text-[10px] px-2 py-1 border border-[var(--terminal-green)] text-[var(--terminal-green)] bg-[var(--terminal-green)]/5">
+                          {skill.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="terminal-label text-[10px] mb-2">Preferred_Stack</div>
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.preferred_skills?.map((skill, i) => (
+                        <span key={i} className="text-[10px] px-2 py-1 border border-[var(--terminal-amber)] text-[var(--terminal-amber)] bg-[var(--terminal-amber)]/5">
+                          {skill.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Responsibilities */}
-          {analysis.responsibilities?.length > 0 && (
-            <div className="card">
-              <h2 className="section-title">Key Responsibilities</h2>
-              <ul className="space-y-2">
-                {analysis.responsibilities.map((r, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-300">
-                    <span className="text-brand-400 mt-0.5">•</span>
-                    {r}
-                  </li>
-                ))}
-              </ul>
+              {/* Summary */}
+              <div className="terminal-card">
+                <div className="text-[10px] text-[var(--terminal-muted)] uppercase mb-2 font-bold">Analysis_Summary</div>
+                <p className="text-xs text-[var(--terminal-text)] leading-relaxed italic opacity-80">
+                  "{analysis.summary}"
+                </p>
+              </div>
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
+

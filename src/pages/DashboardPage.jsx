@@ -25,22 +25,22 @@ export default function DashboardPage() {
   const createResume = async () => {
     setCreating(true);
     try {
-      const res = await api.post('/resume', { title: `Resume ${resumes.length + 1}` });
-      toast.success('Resume created!');
+      const res = await api.post('/resume', { title: `resume_${resumes.length + 1}.json` });
+      toast.success('System record created!');
       navigate(`/resume/${res.data.data._id}`);
     } catch (err) {
-      toast.error('Failed to create resume');
+      toast.error('Failed to initialize new record');
     } finally {
       setCreating(false);
     }
   };
 
   const deleteResume = async (id) => {
-    if (!window.confirm('Delete this resume?')) return;
+    if (!window.confirm('Are you sure you want to delete this record?')) return;
     try {
       await api.delete(`/resume/${id}`);
       setResumes(prev => prev.filter(r => r._id !== id));
-      toast.success('Resume deleted');
+      toast.success('Record purged');
     } catch (err) {
       toast.error('Failed to delete');
     }
@@ -48,80 +48,115 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+        <div className="w-12 h-1 border-b border-[var(--terminal-accent)] animate-pulse" />
+        <div className="text-[var(--terminal-muted)] text-xs font-mono">LISTING_RECORDS...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="animate-fade-in font-mono">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white">My Resumes</h1>
-          <p className="text-gray-400 mt-1">{resumes.length} resume{resumes.length !== 1 ? 's' : ''} created</p>
+          <div className="text-[var(--terminal-accent)] text-sm mb-1">$ ls -la ~/resumes</div>
+          <h1 className="text-2xl font-bold text-white uppercase tracking-wider">Storage_Directory</h1>
+          <div className="text-[var(--terminal-muted)] text-xs mt-1">
+            Total records: {resumes.length} | Free space: UNLIMITED
+          </div>
         </div>
-        <button onClick={createResume} disabled={creating} className="btn-primary flex items-center gap-2">
-          {creating ? (
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-          )}
-          New Resume
+        <button 
+          onClick={createResume} 
+          disabled={creating} 
+          className="btn-terminal btn-terminal-primary flex items-center gap-2 py-2"
+        >
+          {creating ? 'INITIALIZING...' : '+ NEW_RECORD.sh'}
         </button>
       </div>
 
-      {/* Empty State */}
-      {resumes.length === 0 && (
-        <div className="card text-center py-16">
-          <div className="w-16 h-16 bg-brand-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+      {resumes.length === 0 ? (
+        <div className="terminal-card border-dashed flex flex-col items-center justify-center py-16 text-center">
+          <div className="text-[var(--terminal-muted)] mb-4 font-mono">
+            [DIRECTORY_EMPTY]
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">No resumes yet</h3>
-          <p className="text-gray-400 mb-6">Create your first ATS-optimized resume</p>
-          <button onClick={createResume} className="btn-primary">Create Your First Resume</button>
+          <div className="text-sm opacity-50 mb-6">No resume records found in local storage.</div>
+          <button onClick={createResume} className="btn-terminal">initialize_first_resume --force</button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {/* Table Header Style */}
+          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2 text-[10px] uppercase tracking-widest text-[var(--terminal-muted)] border-b border-[var(--terminal-border)]">
+            <div className="col-span-5">Name</div>
+            <div className="col-span-2 text-center">Score</div>
+            <div className="col-span-2 text-center">Versions</div>
+            <div className="col-span-3 text-right">Actions</div>
+          </div>
+
+          {resumes.map(resume => {
+            const activeVersion = resume.versions?.[resume.activeVersionIndex] || resume.versions?.[0];
+            const score = activeVersion?.atsScore?.overall || 0;
+            
+            return (
+              <div 
+                key={resume._id} 
+                className="terminal-card !p-0 group hover:bg-[var(--terminal-header)] transition-all"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-4">
+                  <div className="col-span-5 flex items-center gap-3">
+                    <span className="text-[var(--terminal-amber)] text-xl">📄</span>
+                    <div className="overflow-hidden">
+                      <div className="text-white font-bold group-hover:text-[var(--terminal-accent)] transition-colors truncate">
+                        {resume.title.endsWith('.json') ? resume.title : `${resume.title.replace(/\s+/g, '_').toLowerCase()}.json`}
+                      </div>
+                      <div className="text-[10px] text-[var(--terminal-muted)] truncate">
+                        ID: {resume._id.substring(0, 12)}...
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 flex flex-col items-center">
+                    <div className={`text-sm font-bold ${score >= 70 ? 'text-[var(--terminal-green)]' : score >= 40 ? 'text-[var(--terminal-amber)]' : 'text-red-500'}`}>
+                      {score || '00'}%
+                    </div>
+                    <div className="text-[8px] text-[var(--terminal-muted)]">ATS_CORE</div>
+                  </div>
+
+                  <div className="col-span-2 flex flex-col items-center">
+                    <div className="text-sm font-bold text-white">
+                      {resume.versions?.length || 1}
+                    </div>
+                    <div className="text-[8px] text-[var(--terminal-muted)]">SNAPSHOTS</div>
+                  </div>
+
+                  <div className="col-span-3 flex items-center justify-end gap-2">
+                    <Link 
+                      to={`/resume/${resume._id}`} 
+                      className="btn-terminal !py-1 !px-3 text-xs"
+                    >
+                      EDIT
+                    </Link>
+                    <button 
+                      onClick={() => deleteResume(resume._id)} 
+                      className="p-1.5 text-[var(--terminal-muted)] hover:text-[var(--terminal-red)] transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Resume Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {resumes.map(resume => {
-          const activeVersion = resume.versions?.[resume.activeVersionIndex] || resume.versions?.[0];
-          const score = activeVersion?.atsScore?.overall || 0;
-          return (
-            <div key={resume._id} className="card hover:border-brand-500/30 transition-all group">
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-white group-hover:text-brand-400 transition-colors truncate flex-1">{resume.title}</h3>
-                <button onClick={(e) => { e.stopPropagation(); deleteResume(resume._id); }} className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-600/10 transition-all opacity-0 group-hover:opacity-100">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
-              </div>
-
-              {activeVersion?.contact?.fullName && (
-                <p className="text-sm text-gray-400 mb-2">{activeVersion.contact.fullName}</p>
-              )}
-              {activeVersion?.targetRole && (
-                <p className="text-xs text-brand-400 mb-3">Target: {activeVersion.targetRole}</p>
-              )}
-
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-700/50">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${score >= 70 ? 'bg-green-400' : score >= 40 ? 'bg-yellow-400' : 'bg-gray-500'}`} />
-                  <span className="text-xs text-gray-400">ATS Score: {score || '—'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{resume.versions?.length || 1} version{(resume.versions?.length || 1) !== 1 ? 's' : ''}</span>
-                </div>
-              </div>
-
-              <Link to={`/resume/${resume._id}`} className="btn-secondary w-full mt-4 text-center block text-sm !py-2">
-                Edit Resume
-              </Link>
-            </div>
-          );
-        })}
+      {/* Footer Info */}
+      <div className="mt-12 p-4 border border-[var(--terminal-border)] bg-[var(--terminal-surface)] rounded text-[10px] text-[var(--terminal-muted)] leading-relaxed">
+        <div className="text-[var(--terminal-accent)] mb-1 uppercase font-bold tracking-widest">System_Log:</div>
+        <div>[INFO] Storage encrypted using AES-256.</div>
+        <div>[INFO] Connected to primary node (us-east-1).</div>
+        <div>[INFO] Real-time collaboration: ENABLED.</div>
       </div>
     </div>
   );
 }
+

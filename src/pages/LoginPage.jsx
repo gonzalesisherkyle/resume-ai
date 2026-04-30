@@ -30,60 +30,73 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md animate-fade-in">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg shadow-brand-500/25">
-            R
+    <div className="min-h-screen bg-[var(--terminal-bg)] flex items-center justify-center px-4 font-mono">
+      <div className="scanline"></div>
+      
+      <div className="w-full max-w-md terminal-window animate-fade-in relative z-10">
+        <header className="terminal-header">
+          <div className="flex gap-2 mr-4">
+            <div className="terminal-dot bg-[#ff5f56]"></div>
+            <div className="terminal-dot bg-[#ffbd2e]"></div>
+            <div className="terminal-dot bg-[#27c93f]"></div>
           </div>
-          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-          <p className="text-gray-400 mt-2">Sign in to your ResumeAI account</p>
-        </div>
+          <span className="text-xs text-[var(--terminal-muted)]">auth_service --login</span>
+        </header>
 
-        {/* Form */}
-        <div className="card">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="p-8">
+          <div className="mb-8 font-mono">
+            <div className="text-[var(--terminal-accent)] mb-2">$ sudo access --account</div>
+            <div className="text-[var(--terminal-text)] opacity-70 text-sm">Please identify yourself to the system.</div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="login-email" className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+              <label htmlFor="login-email" className="terminal-label">User_Identity (Email)</label>
               <input
                 id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
+                className="input-terminal"
+                placeholder="root@system.local"
                 required
               />
             </div>
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <label htmlFor="login-password" className="terminal-label">Access_Token (Password)</label>
               <input
                 id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
-                placeholder="••••••••"
+                className="input-terminal"
+                placeholder="****************"
                 required
               />
             </div>
+            
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              className="btn-terminal btn-terminal-primary w-full py-3 flex items-center justify-center gap-2"
             >
-              {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading && <div className="w-4 h-4 border-2 border-[var(--terminal-bg)]/30 border-t-[var(--terminal-bg)] rounded-full animate-spin" />}
+              {loading ? 'AUTHENTICATING...' : 'EXECUTE LOGIN'}
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-gray-400 mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-brand-400 hover:text-brand-300 font-medium">Create one</Link>
-        </p>
+          <div className="mt-8 pt-6 border-t border-[var(--terminal-border)] flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-sm text-[var(--terminal-muted)]">
+              <span>$ new-user --create</span>
+              <Link to="/register" className="text-[var(--terminal-amber)] hover:underline">register.sh</Link>
+            </div>
+            <div className="text-[10px] text-[var(--terminal-muted)] opacity-50 uppercase tracking-[0.2em]">
+              Encrypted Session Layer 2.0
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
