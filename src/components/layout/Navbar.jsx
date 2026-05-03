@@ -98,6 +98,15 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <button
+              onClick={() => {
+                logout();
+                setMobileOpen(false);
+              }}
+              className="block w-full text-left px-4 py-2 mt-2 rounded-lg text-sm font-medium text-red-400 hover:bg-red-600/10 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         )}
       </div>
