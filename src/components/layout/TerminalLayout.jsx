@@ -1,8 +1,10 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const TerminalLayout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navItems = [
     { name: 'dashboard.sh', path: '/dashboard' },
@@ -43,6 +45,15 @@ const TerminalLayout = ({ children }) => {
               {item.name}
             </Link>
           ))}
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            className="px-4 py-1 hover:bg-red-500/10 text-red-400/70 hover:text-red-400 transition-colors text-[10px] uppercase border-l border-[var(--terminal-border)]"
+          >
+            exit --force
+          </button>
         </div>
       </header>
 
