@@ -100,10 +100,12 @@ export default function ResumeForm({ version, onSave }) {
           <div>
             <label className="terminal-label">Paper_Size</label>
             <select value={data.settings?.paperSize || 'Letter'} onChange={e => updateSettings('paperSize', e.target.value)} className="input-terminal !py-1.5 !text-xs">
-              <option value="Letter">US_LETTER</option>
-              <option value="Legal">LEGAL</option>
-              <option value="Folio">FOLIO</option>
-              <option value="A4">A4_ISO</option>
+              <option value="Letter">US_LETTER (8.5" x 11")</option>
+              <option value="Legal">US_LEGAL (8.5" x 14")</option>
+              <option value="Folio">US_FOLIO (8.5" x 13")</option>
+              <option value="A4">A4_ISO (210 x 297 mm)</option>
+              <option value="A5">A5_ISO (148 x 210 mm)</option>
+              <option value="Executive">EXECUTIVE (7.25" x 10.5")</option>
             </select>
           </div>
           <div>
@@ -172,6 +174,10 @@ export default function ResumeForm({ version, onSave }) {
             <label className="terminal-label">GitHub_URI</label>
             <input value={data.contact?.github || ''} onChange={e => updateContact('github', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="github.com/..." />
           </div>
+          <div>
+            <label className="terminal-label">Portfolio_URI</label>
+            <input value={data.contact?.portfolio || ''} onChange={e => updateContact('portfolio', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="portfolio.com/..." />
+          </div>
         </div>
       </div>
 
@@ -225,16 +231,19 @@ export default function ResumeForm({ version, onSave }) {
         </header>
         <div className="p-6 space-y-4">
           {(data.technicalSkills || []).map((cat, idx) => (
-            <div key={idx} className="flex gap-4 items-start group">
-              <div className="w-40 flex-shrink-0">
+            <div key={idx} className="flex flex-col md:flex-row gap-4 items-start group">
+              <div className="w-full md:w-40 flex-shrink-0">
                 <label className="terminal-label">Category</label>
                 <input list="skill-categories" value={cat.category} onChange={e => updateSkill(idx, 'category', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="LANGUAGES" />
               </div>
-              <div className="flex-1">
+              <div className="w-full md:flex-1 relative">
                 <label className="terminal-label">Competencies</label>
                 <input list="tech-skills" value={cat.skills} onChange={e => updateSkill(idx, 'skills', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="JS, TS, RUST..." />
+                <button onClick={() => removeSkill(idx)} className="absolute -right-2 top-0 p-2 text-red-500 md:hidden">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
-              <button onClick={() => removeSkill(idx)} className="p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all mt-4">
+              <button onClick={() => removeSkill(idx)} className="hidden md:block p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all mt-4">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>

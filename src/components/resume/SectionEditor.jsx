@@ -33,7 +33,7 @@ export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onR
               <span className="text-[10px] font-bold text-[var(--terminal-muted)] uppercase tracking-tighter">
                 {type === 'experience' ? `EXP_RECORD_0${idx + 1}` : `PROJ_DATA_0${idx + 1}`}
               </span>
-              <button onClick={() => onRemove(idx)} className="text-[10px] text-red-500 hover:underline opacity-0 group-hover:opacity-100 transition-all">
+              <button onClick={() => onRemove(idx)} className="text-[10px] text-red-500 hover:underline md:opacity-0 md:group-hover:opacity-100 transition-all">
                 [PURGE_RECORD]
               </button>
             </div>
@@ -86,21 +86,21 @@ export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onR
             </div>
 
             {/* Bullets */}
-            <div className="space-y-2 bg-[var(--terminal-surface)] p-4 border border-[var(--terminal-border)] rounded">
+            <div className="space-y-2 bg-[var(--terminal-surface)] p-3 md:p-4 border border-[var(--terminal-border)] rounded">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[10px] uppercase font-bold text-[var(--terminal-muted)] tracking-widest">Description_Log_Entries</label>
                 <button onClick={() => addBullet(idx)} className="text-[10px] text-[var(--terminal-accent)] hover:underline">+ ADD_ENTRY</button>
               </div>
               {(item.bullets || []).map((bullet, bIdx) => (
                 <div key={bIdx} className="flex gap-2 items-start group/bullet">
-                  <span className="text-[var(--terminal-accent)] mt-2 text-xs font-bold">{'>'}</span>
+                  <span className="text-[var(--terminal-accent)] mt-2 text-xs font-bold flex-shrink-0">{'>'}</span>
                   <input
                     value={bullet.text || ''}
                     onChange={e => updateBullet(idx, bIdx, e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 flex-1 text-[11px] text-[var(--terminal-text)] py-1 placeholder-[var(--terminal-border)]"
+                    className="bg-transparent border-none focus:ring-0 flex-1 text-[11px] text-[var(--terminal-text)] py-1 placeholder-[var(--terminal-border)] min-w-0"
                     placeholder="Enter description entry..."
                   />
-                  <button onClick={() => removeBullet(idx, bIdx)} className="p-1 text-red-500 opacity-0 group-hover/bullet:opacity-100 transition-all">
+                  <button onClick={() => removeBullet(idx, bIdx)} className="p-1 text-red-500 md:opacity-0 md:group-hover/bullet:opacity-100 transition-all flex-shrink-0">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>

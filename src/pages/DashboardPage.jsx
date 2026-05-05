@@ -101,10 +101,10 @@ export default function DashboardPage() {
                 key={resume._id} 
                 className="terminal-card !p-0 group hover:bg-[var(--terminal-header)] transition-all"
               >
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-4">
-                  <div className="col-span-5 flex items-center gap-3">
-                    <span className="text-[var(--terminal-amber)] text-xl">📄</span>
-                    <div className="overflow-hidden">
+                <div className="flex flex-col md:grid md:grid-cols-12 gap-4 items-start md:items-center px-4 md:px-6 py-4">
+                  <div className="w-full md:col-span-5 flex items-center gap-3">
+                    <span className="text-[var(--terminal-amber)] text-xl flex-shrink-0">📄</span>
+                    <div className="overflow-hidden min-w-0">
                       <div className="text-white font-bold group-hover:text-[var(--terminal-accent)] transition-colors truncate">
                         {resume.title.endsWith('.json') ? resume.title : `${resume.title.replace(/\s+/g, '_').toLowerCase()}.json`}
                       </div>
@@ -114,33 +114,35 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="col-span-2 flex flex-col items-center">
-                    <div className={`text-sm font-bold ${score >= 70 ? 'text-[var(--terminal-green)]' : score >= 40 ? 'text-[var(--terminal-amber)]' : 'text-red-500'}`}>
-                      {score || '00'}%
+                  <div className="flex md:contents w-full justify-between items-center md:justify-center border-t border-[var(--terminal-border)] md:border-none pt-4 md:pt-0">
+                    <div className="md:col-span-2 flex flex-col items-start md:items-center">
+                      <div className={`text-sm font-bold ${score >= 70 ? 'text-[var(--terminal-green)]' : score >= 40 ? 'text-[var(--terminal-amber)]' : 'text-red-500'}`}>
+                        {score || '00'}%
+                      </div>
+                      <div className="text-[8px] text-[var(--terminal-muted)] uppercase">ATS_CORE</div>
                     </div>
-                    <div className="text-[8px] text-[var(--terminal-muted)]">ATS_CORE</div>
-                  </div>
 
-                  <div className="col-span-2 flex flex-col items-center">
-                    <div className="text-sm font-bold text-white">
-                      {resume.versions?.length || 1}
+                    <div className="md:col-span-2 flex flex-col items-start md:items-center">
+                      <div className="text-sm font-bold text-white">
+                        {resume.versions?.length || 1}
+                      </div>
+                      <div className="text-[8px] text-[var(--terminal-muted)] uppercase">SNAPSHOTS</div>
                     </div>
-                    <div className="text-[8px] text-[var(--terminal-muted)]">SNAPSHOTS</div>
-                  </div>
 
-                  <div className="col-span-3 flex items-center justify-end gap-2">
-                    <Link 
-                      to={`/resume/${resume._id}`} 
-                      className="btn-terminal !py-1 !px-3 text-xs"
-                    >
-                      EDIT
-                    </Link>
-                    <button 
-                      onClick={() => deleteResume(resume._id)} 
-                      className="p-1.5 text-[var(--terminal-muted)] hover:text-[var(--terminal-red)] transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
+                    <div className="md:col-span-3 flex items-center justify-end gap-3 self-end md:self-center">
+                      <Link 
+                        to={`/resume/${resume._id}`} 
+                        className="btn-terminal !py-1 !px-4 text-[10px] md:text-xs"
+                      >
+                        EDIT
+                      </Link>
+                      <button 
+                        onClick={() => deleteResume(resume._id)} 
+                        className="p-1.5 text-[var(--terminal-muted)] hover:text-[var(--terminal-red)] transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -107,12 +107,23 @@ export default function ResumeEditorPage() {
     <div className="animate-fade-in font-mono">
       {/* Editor Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--terminal-border)]">
-        <div>
-          <div className="text-[var(--terminal-accent)] text-xs mb-1">$ workspace --active</div>
-          <h1 className="text-xl font-bold text-white uppercase tracking-tight flex items-center gap-2">
-            {resume?.title}
-            {saving && <span className="text-[10px] text-[var(--terminal-amber)] animate-pulse font-normal">[SAVING...]</span>}
-          </h1>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate('/dashboard')} 
+            className="p-2 text-[var(--terminal-muted)] hover:text-[var(--terminal-accent)] transition-colors"
+            title="Return to Dashboard"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <div>
+            <div className="text-[var(--terminal-accent)] text-xs mb-1">$ workspace --active</div>
+            <h1 className="text-xl font-bold text-white uppercase tracking-tight flex items-center gap-2">
+              {resume?.title}
+              {saving && <span className="text-[10px] text-[var(--terminal-amber)] animate-pulse font-normal">[SAVING...]</span>}
+            </h1>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -139,15 +150,15 @@ export default function ResumeEditorPage() {
       </div>
 
       {/* Editor Main Section */}
-      <div className="flex flex-col xl:flex-row gap-8">
-        <div className={`flex-1 min-w-0 transition-all ${showChat ? 'xl:mr-80' : ''}`}>
+      <div className="flex flex-col lg:flex-row gap-8 relative">
+        <div className={`flex-1 min-w-0 transition-all ${showChat ? 'lg:mr-80' : ''}`}>
           {/* Internal Tabs */}
-          <div className="flex gap-4 mb-8 border-b border-[var(--terminal-border)]">
+          <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 border-b border-[var(--terminal-border)] overflow-x-auto no-scrollbar">
             {['edit', 'preview', 'score'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-2 px-1 text-xs font-bold uppercase tracking-widest transition-all relative ${
+                className={`pb-2 px-2 md:px-1 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${
                   activeTab === tab 
                     ? 'text-[var(--terminal-accent)]' 
                     : 'text-[var(--terminal-muted)] hover:text-white'
@@ -166,7 +177,7 @@ export default function ResumeEditorPage() {
               <ResumeForm version={activeVersion} onSave={saveResume} />
             )}
             {activeTab === 'preview' && activeVersion && (
-              <div className="bg-white rounded p-4 overflow-auto max-h-[800px]">
+              <div className="bg-white rounded p-4 overflow-auto max-h-[70vh] md:max-h-[800px]">
                 <ResumePreview version={activeVersion} />
               </div>
             )}
@@ -178,11 +189,12 @@ export default function ResumeEditorPage() {
 
         {/* Floating Chat Sidebar (Internal) */}
         {showChat && (
-          <div className="xl:fixed xl:right-8 xl:top-32 xl:bottom-12 w-full xl:w-80 terminal-window z-30">
+          <div className="lg:fixed lg:right-8 lg:top-32 lg:bottom-12 w-full lg:w-80 terminal-window z-30 mt-8 lg:mt-0">
             <header className="terminal-header">
               <span className="text-[10px] uppercase font-bold text-[var(--terminal-accent)]">AI_ASSISTANT_TERMINAL</span>
+              <button onClick={() => setShowChat(false)} className="lg:hidden text-[var(--terminal-muted)] ml-auto text-[10px]">[CLOSE]</button>
             </header>
-            <div className="h-[500px] xl:h-full overflow-hidden">
+            <div className="h-[400px] lg:h-full overflow-hidden">
               <AIChatAssistant resumeId={id} />
             </div>
           </div>
