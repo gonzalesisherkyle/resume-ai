@@ -80,6 +80,7 @@ export default function ResumeEditorPage() {
 
   const handleExport = async (format) => {
     setExporting(true);
+    const toastId = toast.loading(`Generating ${format.toUpperCase()}...`);
     try {
       const res = await api.post(`/resume/${id}/export`, { format }, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -88,9 +89,9 @@ export default function ResumeEditorPage() {
       a.download = `resume_v${resume.activeVersionIndex + 1}.${format}`;
       a.click();
       window.URL.revokeObjectURL(url);
-      toast.success(`${format.toUpperCase()} EXPORTED`);
+      toast.success(`${format.toUpperCase()} READY`, { id: toastId });
     } catch (err) {
-      toast.error('Export failed');
+      toast.error('EXPORT_FAILED', { id: toastId });
     } finally {
       setExporting(false);
     }
@@ -134,11 +135,15 @@ export default function ResumeEditorPage() {
             {generating ? 'THINKING...' : 'AI_OPTIMIZE'}
           </button>
           <div className="relative group">
-            <button className="btn-terminal text-xs">EXPORT ▾</button>
-            <div className="absolute right-0 mt-1 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[100px]">
-              <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">PDF_FORMAT</button>
-              <button onClick={() => handleExport('docx')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">DOCX_FORMAT</button>
-            </div>
+            <button disabled={exporting} className="btn-terminal text-xs">
+              {exporting ? 'EXPORTING...' : 'EXPORT ▾'}
+            </button>
+            {!exporting && (
+              <div className="absolute right-0 mt-1 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[100px]">
+                <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">PDF_FORMAT</button>
+                <button onClick={() => handleExport('docx')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">DOCX_FORMAT</button>
+              </div>
+            )}
           </div>
           <button 
             onClick={() => setShowChat(!showChat)} 
