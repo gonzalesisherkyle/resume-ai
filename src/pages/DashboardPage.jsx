@@ -1,26 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import { useModal } from '../context/ModalContext';
 
 export default function DashboardPage() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
+  const { confirm } = useModal();
 
-  useEffect(() => { fetchResumes(); }, []);
-
-  const fetchResumes = async () => {
+  const fetchResumes = useCallback(async () => {
     try {
       const res = await api.get('/resume');
       setResumes(res.data.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load resumes');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void Promise.resolve().then(fetchResumes);
+  }, [fetchResumes]);
 
   const createResume = async () => {
     setCreating(true);
@@ -28,7 +32,7 @@ export default function DashboardPage() {
       const res = await api.post('/resume', { title: `resume_${resumes.length + 1}.json` });
       toast.success('System record created!');
       navigate(`/resume/${res.data.data._id}`);
-    } catch (err) {
+    } catch {
       toast.error('Failed to initialize new record');
     } finally {
       setCreating(false);
@@ -36,13 +40,73 @@ export default function DashboardPage() {
   };
 
   const deleteResume = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this record?')) return;
+    const ok = await confirm('Are you sure you want to delete this record? This action cannot be undone.');
+    if (!ok) return;
     try {
       await api.delete(`/resume/${id}`);
       setResumes(prev => prev.filter(r => r._id !== id));
       toast.success('Record purged');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
+    }
+  };
+
+  const getShareUrl = (shareId) => `${window.location.origin}/share/${shareId}`;
+
+  const copyShareLink = async (shareId) => {
+    if (!shareId) {
+      toast.error('Public link is not ready yet');
+      return;
+    }
+
+    const shareUrl = getShareUrl(shareId);
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = shareUrl;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      toast.success('Public link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const updateResumeShareState = (id, shareData) => {
+    setResumes(prev => prev.map(resume => (
+      resume._id === id ? { ...resume, ...shareData } : resume
+    )));
+  };
+
+  const enableSharing = async (resume) => {
+    try {
+      const res = await api.patch(`/resume/${resume._id}/share`, { isPublic: true });
+      updateResumeShareState(resume._id, res.data.data);
+      await copyShareLink(res.data.data.shareId);
+    } catch {
+      toast.error('Failed to publish resume');
+    }
+  };
+
+  const disableSharing = async (resume) => {
+    const ok = await confirm('Disable this public resume link? Existing visitors will no longer be able to view it.');
+    if (!ok) return;
+
+    try {
+      const res = await api.patch(`/resume/${resume._id}/share`, { isPublic: false });
+      updateResumeShareState(resume._id, res.data.data);
+      toast.success('Public link disabled');
+    } catch {
+      toast.error('Failed to disable sharing');
     }
   };
 
@@ -86,9 +150,10 @@ export default function DashboardPage() {
         <div className="space-y-2">
           {/* Table Header Style */}
           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-2 text-[10px] uppercase tracking-widest text-[var(--terminal-muted)] border-b border-[var(--terminal-border)]">
-            <div className="col-span-5">Name</div>
+            <div className="col-span-4">Name</div>
             <div className="col-span-2 text-center">Score</div>
-            <div className="col-span-2 text-center">Versions</div>
+            <div className="col-span-1 text-center">Versions</div>
+            <div className="col-span-2 text-center">Views</div>
             <div className="col-span-3 text-right">Actions</div>
           </div>
 
@@ -102,7 +167,7 @@ export default function DashboardPage() {
                 className="terminal-card !p-0 group hover:bg-[var(--terminal-header)] transition-all"
               >
                 <div className="flex flex-col md:grid md:grid-cols-12 gap-4 items-start md:items-center px-4 md:px-6 py-4">
-                  <div className="w-full md:col-span-5 flex items-center gap-3">
+                  <div className="w-full md:col-span-4 flex items-center gap-3">
                     <span className="text-[var(--terminal-amber)] text-xl flex-shrink-0">📄</span>
                     <div className="overflow-hidden min-w-0">
                       <div className="text-white font-bold group-hover:text-[var(--terminal-accent)] transition-colors truncate">
@@ -114,7 +179,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex md:contents w-full justify-between items-center md:justify-center border-t border-[var(--terminal-border)] md:border-none pt-4 md:pt-0">
+                  <div className="flex flex-wrap md:contents w-full justify-between items-center md:justify-center gap-y-4 border-t border-[var(--terminal-border)] md:border-none pt-4 md:pt-0">
                     <div className="md:col-span-2 flex flex-col items-start md:items-center">
                       <div className={`text-sm font-bold ${score >= 70 ? 'text-[var(--terminal-green)]' : score >= 40 ? 'text-[var(--terminal-amber)]' : 'text-red-500'}`}>
                         {score || '00'}%
@@ -122,20 +187,47 @@ export default function DashboardPage() {
                       <div className="text-[8px] text-[var(--terminal-muted)] uppercase">ATS_CORE</div>
                     </div>
 
-                    <div className="md:col-span-2 flex flex-col items-start md:items-center">
+                    <div className="md:col-span-1 flex flex-col items-start md:items-center">
                       <div className="text-sm font-bold text-white">
                         {resume.versions?.length || 1}
                       </div>
                       <div className="text-[8px] text-[var(--terminal-muted)] uppercase">SNAPSHOTS</div>
                     </div>
 
-                    <div className="md:col-span-3 flex items-center justify-end gap-3 self-end md:self-center">
+                    <div className="md:col-span-2 flex flex-col items-start md:items-center">
+                      <div className={`text-sm font-bold ${resume.isPublic ? 'text-[var(--terminal-accent)]' : 'text-white'}`}>
+                        {resume.viewCount || 0}
+                      </div>
+                      <div className="text-[8px] text-[var(--terminal-muted)] uppercase">
+                        {resume.isPublic ? 'PUBLIC_VIEWS' : 'PRIVATE'}
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-3 flex flex-wrap items-center justify-end gap-2 self-end md:self-center">
                       <Link 
                         to={`/resume/${resume._id}`} 
-                        className="btn-terminal !py-1 !px-4 text-[10px] md:text-xs"
+                        className="btn-terminal !py-1 !px-3 text-[10px]"
                       >
                         EDIT
                       </Link>
+                      <button
+                        onClick={() => resume.isPublic ? copyShareLink(resume.shareId) : enableSharing(resume)}
+                        className="btn-terminal !py-1 !px-3 text-[10px]"
+                        title={resume.isPublic ? 'Copy public link' : 'Publish public resume'}
+                      >
+                        {resume.isPublic ? 'COPY' : 'SHARE'}
+                      </button>
+                      {resume.isPublic && (
+                        <button
+                          onClick={() => disableSharing(resume)}
+                          className="p-1.5 text-[var(--terminal-muted)] hover:text-[var(--terminal-amber)] transition-colors"
+                          title="Disable public link"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.148.194-2.25.55-3.276m3.024-3.024A9.956 9.956 0 0112 1c5.523 0 10 4.477 10 10a9.96 9.96 0 01-1.702 5.574M15 9a3 3 0 00-4.243-2.743M9.879 9.879A3 3 0 0012 15a3 3 0 002.121-.879M3 3l18 18" />
+                          </svg>
+                        </button>
+                      )}
                       <button 
                         onClick={() => deleteResume(resume._id)} 
                         className="p-1.5 text-[var(--terminal-muted)] hover:text-[var(--terminal-red)] transition-colors"

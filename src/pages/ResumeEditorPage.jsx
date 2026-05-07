@@ -16,22 +16,25 @@ export default function ResumeEditorPage() {
   const [generating, setGenerating] = useState(false);
   const [scoring, setScoring] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [activeTab, setActiveTab] = useState('edit'); // edit, preview, score
   const [showChat, setShowChat] = useState(false);
 
-  useEffect(() => { fetchResume(); }, [id]);
-
-  const fetchResume = async () => {
+  const fetchResume = useCallback(async () => {
     try {
       const res = await api.get(`/resume/${id}`);
       setResume(res.data.data);
-    } catch (err) {
+    } catch {
       toast.error('Resume not found');
       navigate('/dashboard');
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    void Promise.resolve().then(fetchResume);
+  }, [fetchResume]);
 
   const activeVersion = resume?.versions?.[resume.activeVersionIndex] || resume?.versions?.[0];
 
@@ -41,7 +44,7 @@ export default function ResumeEditorPage() {
       const res = await api.put(`/resume/${id}`, { version: versionData });
       setResume(res.data.data);
       toast.success('Saved!', { duration: 1500 });
-    } catch (err) {
+    } catch {
       toast.error('Save failed');
     } finally {
       setSaving(false);
@@ -71,7 +74,7 @@ export default function ResumeEditorPage() {
       setResume(updated.data.data);
       toast.success('ATS Scan Complete');
       setActiveTab('score');
-    } catch (err) {
+    } catch {
       toast.error('Scoring failed');
     } finally {
       setScoring(false);
@@ -90,10 +93,57 @@ export default function ResumeEditorPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       toast.success(`${format.toUpperCase()} READY`, { id: toastId });
-    } catch (err) {
+    } catch {
       toast.error('EXPORT_FAILED', { id: toastId });
     } finally {
       setExporting(false);
+    }
+  };
+
+  const copyShareUrl = async (shareId) => {
+    if (!shareId) {
+      toast.error('Public link is not ready yet');
+      return;
+    }
+
+    try {
+      const shareUrl = `${window.location.origin}/share/${shareId}`;
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = shareUrl;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
+      toast.success('Public link copied');
+    } catch {
+      toast.error('COPY_FAILED');
+    }
+  };
+
+  const handleShareToggle = async (isPublic) => {
+    setSharing(true);
+    try {
+      const res = await api.patch(`/resume/${id}/share`, { isPublic });
+      setResume(prev => prev ? { ...prev, ...res.data.data } : prev);
+
+      if (isPublic) {
+        await copyShareUrl(res.data.data.shareId);
+      } else {
+        toast.success('Public link disabled');
+      }
+    } catch {
+      toast.error('SHARE_UPDATE_FAILED');
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -145,6 +195,27 @@ export default function ResumeEditorPage() {
               </div>
             )}
           </div>
+          {resume?.isPublic && (
+            <div className="px-3 py-2 border border-[var(--terminal-border)] text-[10px] text-[var(--terminal-accent)] uppercase tracking-widest">
+              {resume.viewCount || 0}_VIEWS
+            </div>
+          )}
+          <button
+            onClick={() => resume?.isPublic ? copyShareUrl(resume.shareId) : handleShareToggle(true)}
+            disabled={sharing}
+            className="btn-terminal text-xs"
+          >
+            {sharing ? 'SYNCING...' : resume?.isPublic ? 'COPY_LINK' : 'SHARE'}
+          </button>
+          {resume?.isPublic && (
+            <button
+              onClick={() => handleShareToggle(false)}
+              disabled={sharing}
+              className="btn-terminal text-xs"
+            >
+              UNSHARE
+            </button>
+          )}
           <button 
             onClick={() => setShowChat(!showChat)} 
             className={`btn-terminal text-xs ${showChat ? '!border-[var(--terminal-accent)] !text-[var(--terminal-accent)]' : ''}`}

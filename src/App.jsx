@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import ResumeEditorPage from './pages/ResumeEditorPage';
 import JobAnalyzerPage from './pages/JobAnalyzerPage';
 import ScoreViewPage from './pages/ScoreViewPage';
+import PublicResumePage from './pages/PublicResumePage';
 
 export default function App() {
   const { loading } = useAuth();
@@ -28,6 +29,7 @@ export default function App() {
       {/* Auth Routes - No Layout or Custom Auth Layout */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/share/:shareId" element={<PublicResumePage />} />
 
       {/* Protected Routes - With TerminalLayout */}
       <Route
@@ -76,4 +78,3 @@ export default function App() {
     </Routes>
   );
 }
-

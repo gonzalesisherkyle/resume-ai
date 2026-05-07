@@ -1,4 +1,7 @@
+import { useModal } from '../../context/ModalContext';
+
 export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onRemove, type }) {
+  const { confirm } = useModal();
   const addBullet = (idx) => {
     const bullets = [...(items[idx].bullets || []), { text: '' }];
     onUpdate(idx, { bullets });
@@ -33,7 +36,13 @@ export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onR
               <span className="text-[10px] font-bold text-[var(--terminal-muted)] uppercase tracking-tighter">
                 {type === 'experience' ? `EXP_RECORD_0${idx + 1}` : `PROJ_DATA_0${idx + 1}`}
               </span>
-              <button onClick={() => onRemove(idx)} className="text-[10px] text-red-500 hover:underline md:opacity-0 md:group-hover:opacity-100 transition-all">
+              <button 
+                onClick={async () => {
+                  const ok = await confirm(`Are you sure you want to purge this ${type === 'experience' ? 'experience record' : 'project data'}?`);
+                  if (ok) onRemove(idx);
+                }} 
+                className="text-[10px] text-red-500 hover:underline md:opacity-0 md:group-hover:opacity-100 transition-all"
+              >
                 [PURGE_RECORD]
               </button>
             </div>

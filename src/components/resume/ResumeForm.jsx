@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import SectionEditor from './SectionEditor';
+import { useModal } from '../../context/ModalContext';
 
 export default function ResumeForm({ version, onSave }) {
+  const { confirm } = useModal();
   const [data, setData] = useState(version);
   const [dirty, setDirty] = useState(false);
 
@@ -284,7 +286,13 @@ export default function ResumeForm({ version, onSave }) {
             <div key={idx} className="border-l-2 border-[var(--terminal-border)] pl-4 group">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-[10px] text-[var(--terminal-muted)] font-bold">EDU_RECORD_0{idx + 1}</span>
-                <button onClick={() => removeEducation(idx)} className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                <button 
+                  onClick={async () => {
+                    const ok = await confirm('Are you sure you want to purge this academic record?');
+                    if (ok) removeEducation(idx);
+                  }} 
+                  className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                >
                   [PURGE]
                 </button>
               </div>
