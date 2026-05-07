@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import SectionEditor from './SectionEditor';
 import { useModal } from '../../context/ModalContext';
+import TerminalField from '../common/TerminalField';
 
 export default function ResumeForm({ version, onSave }) {
   const { confirm } = useModal();
   const [data, setData] = useState(version);
   const [dirty, setDirty] = useState(false);
 
-  useEffect(() => { setData(version); setDirty(false); }, [version]);
+  useEffect(() => {
+    let cancelled = false;
+
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setData(version);
+      setDirty(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [version]);
 
   const update = (field, value) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -99,20 +112,15 @@ export default function ResumeForm({ version, onSave }) {
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">RENDER_CONFIG</span>
         </header>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div>
-            <label className="terminal-label">Paper_Size</label>
-            <select value={data.settings?.paperSize || 'Letter'} onChange={e => updateSettings('paperSize', e.target.value)} className="input-terminal !py-1.5 !text-xs">
+          <TerminalField as="select" label="Paper_Size" value={data.settings?.paperSize || 'Letter'} onChange={e => updateSettings('paperSize', e.target.value)}>
               <option value="Letter">US_LETTER (8.5" x 11")</option>
               <option value="Legal">US_LEGAL (8.5" x 14")</option>
               <option value="Folio">US_FOLIO (8.5" x 13")</option>
               <option value="A4">A4_ISO (210 x 297 mm)</option>
               <option value="A5">A5_ISO (148 x 210 mm)</option>
               <option value="Executive">EXECUTIVE (7.25" x 10.5")</option>
-            </select>
-          </div>
-          <div>
-            <label className="terminal-label">Template_ID</label>
-            <select value={data.settings?.template || 'standard'} onChange={e => updateSettings('template', e.target.value)} className="input-terminal !py-1.5 !text-xs">
+          </TerminalField>
+          <TerminalField as="select" label="Template_ID" value={data.settings?.template || 'standard'} onChange={e => updateSettings('template', e.target.value)}>
               <option value="standard">CLASSIC_STD</option>
               <option value="executive">EXEC_PRO</option>
               <option value="modern">MODERN_CLEAN</option>
@@ -121,28 +129,21 @@ export default function ResumeForm({ version, onSave }) {
               <option value="creative">CREATIVE_VIBE</option>
               <option value="academic">ACADEMIC_FORMAL</option>
               <option value="compact">COMPACT_TIGHT</option>
-            </select>
-          </div>
-          <div>
-            <label className="terminal-label">Font_Family</label>
-            <select value={data.settings?.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateSettings('fontFamily', e.target.value)} className="input-terminal !py-1.5 !text-xs">
+          </TerminalField>
+          <TerminalField as="select" label="Font_Family" value={data.settings?.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateSettings('fontFamily', e.target.value)}>
               <option value="Arial, Helvetica, sans-serif">ARIAL_SANS</option>
               <option value="'Roboto', sans-serif">ROBOTO_SANS</option>
               <option value="'Inter', sans-serif">INTER_SANS</option>
               <option value="'Times New Roman', Times, serif">TIMES_SERIF</option>
               <option value="'Fira Code', monospace">FIRA_MONO</option>
               <option value="'Courier New', monospace">COURIER_MONO</option>
-            </select>
-          </div>
-          <div>
-            <label className="terminal-label">Base_Size</label>
-            <select value={data.settings?.fontSize || '11pt'} onChange={e => updateSettings('fontSize', e.target.value)} className="input-terminal !py-1.5 !text-xs">
+          </TerminalField>
+          <TerminalField as="select" label="Base_Size" value={data.settings?.fontSize || '11pt'} onChange={e => updateSettings('fontSize', e.target.value)}>
               <option value="9pt">9.0_PT</option>
               <option value="10pt">10.0_PT</option>
               <option value="11pt">11.0_PT</option>
               <option value="12pt">12.0_PT</option>
-            </select>
-          </div>
+          </TerminalField>
         </div>
       </div>
 
@@ -152,34 +153,13 @@ export default function ResumeForm({ version, onSave }) {
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">IDENTITY_BLOCK</span>
         </header>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="terminal-label">Full_Name</label>
-            <input value={data.contact?.fullName || ''} onChange={e => updateContact('fullName', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="ENTITY_NAME" />
-          </div>
-          <div>
-            <label className="terminal-label">Email_Address</label>
-            <input value={data.contact?.email || ''} onChange={e => updateContact('email', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="user@domain.com" type="email" />
-          </div>
-          <div>
-            <label className="terminal-label">Comm_Link_Phone</label>
-            <input value={data.contact?.phone || ''} onChange={e => updateContact('phone', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="+X-XXX-XXX-XXXX" />
-          </div>
-          <div>
-            <label className="terminal-label">Geographic_LOC</label>
-            <input list="locations" value={data.contact?.location || ''} onChange={e => updateContact('location', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="CITY, STATE/PROV" />
-          </div>
-          <div>
-            <label className="terminal-label">LinkedIn_URI</label>
-            <input value={data.contact?.linkedin || ''} onChange={e => updateContact('linkedin', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="linkedin.com/in/..." />
-          </div>
-          <div>
-            <label className="terminal-label">GitHub_URI</label>
-            <input value={data.contact?.github || ''} onChange={e => updateContact('github', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="github.com/..." />
-          </div>
-          <div>
-            <label className="terminal-label">Portfolio_URI</label>
-            <input value={data.contact?.portfolio || ''} onChange={e => updateContact('portfolio', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="portfolio.com/..." />
-          </div>
+          <TerminalField label="Full_Name" value={data.contact?.fullName || ''} onChange={e => updateContact('fullName', e.target.value)} placeholder="ENTITY_NAME" />
+          <TerminalField label="Email_Address" value={data.contact?.email || ''} onChange={e => updateContact('email', e.target.value)} placeholder="user@domain.com" type="email" />
+          <TerminalField label="Comm_Link_Phone" value={data.contact?.phone || ''} onChange={e => updateContact('phone', e.target.value)} placeholder="+X-XXX-XXX-XXXX" />
+          <TerminalField label="Geographic_LOC" value={data.contact?.location || ''} onChange={e => updateContact('location', e.target.value)} placeholder="CITY, STATE/PROV" />
+          <TerminalField label="LinkedIn_URI" value={data.contact?.linkedin || ''} onChange={e => updateContact('linkedin', e.target.value)} placeholder="linkedin.com/in/..." />
+          <TerminalField label="GitHub_URI" value={data.contact?.github || ''} onChange={e => updateContact('github', e.target.value)} placeholder="github.com/..." />
+          <TerminalField label="Portfolio_URI" value={data.contact?.portfolio || ''} onChange={e => updateContact('portfolio', e.target.value)} placeholder="portfolio.com/..." />
         </div>
       </div>
 
@@ -190,26 +170,17 @@ export default function ResumeForm({ version, onSave }) {
         </header>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="terminal-label">Objective_Role</label>
-              <input list="job-titles" value={data.targetRole || ''} onChange={e => update('targetRole', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="SR_ENGINEER" />
-            </div>
-            <div>
-              <label className="terminal-label">Seniority_Tier</label>
-              <select value={data.experienceLevel || ''} onChange={e => update('experienceLevel', e.target.value)} className="input-terminal !py-1.5 !text-xs">
+            <TerminalField label="Objective_Role" value={data.targetRole || ''} onChange={e => update('targetRole', e.target.value)} placeholder="SR_ENGINEER" />
+            <TerminalField as="select" label="Seniority_Tier" value={data.experienceLevel || ''} onChange={e => update('experienceLevel', e.target.value)}>
                 <option value="">SELECT_TIER</option>
                 <option value="junior">L1_JUNIOR</option>
                 <option value="mid">L2_MID_LEVEL</option>
                 <option value="senior">L3_SENIOR</option>
                 <option value="staff">L4_STAFF</option>
                 <option value="principal">L5_PRINCIPAL</option>
-              </select>
-            </div>
+            </TerminalField>
           </div>
-          <div>
-            <label className="terminal-label">Reference_Job_Description (RAW_DATA)</label>
-            <textarea value={data.jobDescription || ''} onChange={e => update('jobDescription', e.target.value)} className="input-terminal h-32 !p-4 !text-xs leading-relaxed" placeholder="PASTE_JD_FOR_AI_OPTIMIZATION..." />
-          </div>
+          <TerminalField as="textarea" label="Reference_Job_Description (RAW_DATA)" value={data.jobDescription || ''} onChange={e => update('jobDescription', e.target.value)} className="h-32" placeholder="PASTE_JD_FOR_AI_OPTIMIZATION..." />
         </div>
       </div>
 
@@ -219,7 +190,7 @@ export default function ResumeForm({ version, onSave }) {
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">EXECUTIVE_SUMMARY_LOG</span>
         </header>
         <div className="p-6">
-          <textarea value={data.summary || ''} onChange={e => update('summary', e.target.value)} className="input-terminal h-24 !p-4 !text-xs leading-relaxed" placeholder="BRIEF_VALUE_PROPOSITION..." />
+          <TerminalField as="textarea" value={data.summary || ''} onChange={e => update('summary', e.target.value)} className="h-24" placeholder="BRIEF_VALUE_PROPOSITION..." />
         </div>
       </div>
 
@@ -234,13 +205,9 @@ export default function ResumeForm({ version, onSave }) {
         <div className="p-6 space-y-4">
           {(data.technicalSkills || []).map((cat, idx) => (
             <div key={idx} className="flex flex-col md:flex-row gap-4 items-start group">
-              <div className="w-full md:w-40 flex-shrink-0">
-                <label className="terminal-label">Category</label>
-                <input list="skill-categories" value={cat.category} onChange={e => updateSkill(idx, 'category', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="LANGUAGES" />
-              </div>
+              <TerminalField fieldClassName="w-full md:w-40 flex-shrink-0" label="Category" value={cat.category} onChange={e => updateSkill(idx, 'category', e.target.value)} placeholder="LANGUAGES" />
               <div className="w-full md:flex-1 relative">
-                <label className="terminal-label">Competencies</label>
-                <input list="tech-skills" value={cat.skills} onChange={e => updateSkill(idx, 'skills', e.target.value)} className="input-terminal !py-1.5 !text-xs" placeholder="JS, TS, RUST..." />
+                <TerminalField label="Competencies" value={cat.skills} onChange={e => updateSkill(idx, 'skills', e.target.value)} placeholder="JS, TS, RUST..." />
                 <button onClick={() => removeSkill(idx)} className="absolute -right-2 top-0 p-2 text-red-500 md:hidden">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
@@ -297,22 +264,10 @@ export default function ResumeForm({ version, onSave }) {
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="terminal-label">Institution</label>
-                  <input value={edu.institution} onChange={e => updateEducation(idx, { institution: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="University Name" />
-                </div>
-                <div>
-                  <label className="terminal-label">Degree_Type</label>
-                  <input list="degrees" value={edu.degree} onChange={e => updateEducation(idx, { degree: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="B.S." />
-                </div>
-                <div>
-                  <label className="terminal-label">Field_Of_Study</label>
-                  <input list="fields" value={edu.field} onChange={e => updateEducation(idx, { field: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Computer Science" />
-                </div>
-                <div>
-                  <label className="terminal-label">Completion_Date</label>
-                  <input value={edu.endDate} onChange={e => updateEducation(idx, { endDate: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="May 2023" />
-                </div>
+                <TerminalField label="Institution" value={edu.institution} onChange={e => updateEducation(idx, { institution: e.target.value })} placeholder="University Name" />
+                <TerminalField label="Degree_Type" value={edu.degree} onChange={e => updateEducation(idx, { degree: e.target.value })} placeholder="B.S." />
+                <TerminalField label="Field_Of_Study" value={edu.field} onChange={e => updateEducation(idx, { field: e.target.value })} placeholder="Computer Science" />
+                <TerminalField label="Completion_Date" value={edu.endDate} onChange={e => updateEducation(idx, { endDate: e.target.value })} placeholder="May 2023" />
               </div>
             </div>
           ))}
@@ -326,13 +281,6 @@ export default function ResumeForm({ version, onSave }) {
         </button>
       </div>
 
-      {/* Datalists */}
-      <datalist id="locations"><option value="Remote" /><option value="Hybrid" /><option value="San Francisco, CA" /><option value="New York, NY" /></datalist>
-      <datalist id="job-titles"><option value="Software Engineer" /><option value="Frontend Developer" /><option value="Backend Developer" /><option value="Full Stack Developer" /></datalist>
-      <datalist id="skill-categories"><option value="Languages" /><option value="Frontend" /><option value="Backend" /><option value="Databases" /><option value="Cloud & DevOps" /></datalist>
-      <datalist id="tech-skills"><option value="JavaScript, TypeScript, React, HTML, CSS" /><option value="Node.js, Express, MongoDB, PostgreSQL" /></datalist>
-      <datalist id="degrees"><option value="Bachelor of Science" /><option value="Master of Science" /><option value="Ph.D." /></datalist>
-      <datalist id="fields"><option value="Computer Science" /><option value="Software Engineering" /><option value="Data Science" /></datalist>
     </div>
   );
 }

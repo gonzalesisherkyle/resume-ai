@@ -17,6 +17,7 @@ export default function ResumeEditorPage() {
   const [scoring, setScoring] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
   const [activeTab, setActiveTab] = useState('edit'); // edit, preview, score
   const [showChat, setShowChat] = useState(false);
 
@@ -24,6 +25,7 @@ export default function ResumeEditorPage() {
     try {
       const res = await api.get(`/resume/${id}`);
       setResume(res.data.data);
+      setTitleDraft(res.data.data.title || '');
     } catch {
       toast.error('Resume not found');
       navigate('/dashboard');
@@ -50,6 +52,46 @@ export default function ResumeEditorPage() {
       setSaving(false);
     }
   }, [id]);
+
+  const saveTitle = async (event) => {
+    if (event?.currentTarget?.dataset.skipSave === 'true') {
+      delete event.currentTarget.dataset.skipSave;
+      return;
+    }
+
+    const nextTitle = titleDraft.trim() || 'Untitled Resume';
+    if (!resume || nextTitle === resume.title) {
+      setTitleDraft(resume?.title || '');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await api.put(`/resume/${id}`, { title: nextTitle });
+      setResume(res.data.data);
+      setTitleDraft(res.data.data.title || nextTitle);
+      toast.success('Title saved', { duration: 1500 });
+    } catch {
+      setTitleDraft(resume.title || '');
+      toast.error('Title save failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTitleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.currentTarget.dataset.skipSave = 'true';
+      setTitleDraft(resume?.title || '');
+      event.currentTarget.blur();
+    }
+  };
 
   const handleGenerateAI = async () => {
     setGenerating(true);
@@ -159,8 +201,8 @@ export default function ResumeEditorPage() {
       {/* Editor Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--terminal-border)]">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/dashboard')} 
+          <button
+            onClick={() => navigate('/dashboard')}
             className="p-2 text-[var(--terminal-muted)] hover:text-[var(--terminal-accent)] transition-colors"
             title="Return to Dashboard"
           >
@@ -170,8 +212,15 @@ export default function ResumeEditorPage() {
           </button>
           <div>
             <div className="text-[var(--terminal-accent)] text-xs mb-1">$ workspace --active</div>
-            <h1 className="text-xl font-bold text-white uppercase tracking-tight flex items-center gap-2">
-              {resume?.title}
+            <h1 className="flex items-center gap-2">
+              <input
+                value={titleDraft}
+                onChange={(event) => setTitleDraft(event.target.value)}
+                onBlur={saveTitle}
+                onKeyDown={handleTitleKeyDown}
+                className="min-w-0 w-full max-w-[22rem] bg-transparent border-b border-transparent px-0 py-0.5 text-xl font-bold text-white uppercase tracking-tight outline-none transition-colors hover:border-[var(--terminal-border)] focus:border-[var(--terminal-accent)]"
+                aria-label="Resume title"
+              />
               {saving && <span className="text-[10px] text-[var(--terminal-amber)] animate-pulse font-normal">[SAVING...]</span>}
             </h1>
           </div>
@@ -216,8 +265,8 @@ export default function ResumeEditorPage() {
               UNSHARE
             </button>
           )}
-          <button 
-            onClick={() => setShowChat(!showChat)} 
+          <button
+            onClick={() => setShowChat(!showChat)}
             className={`btn-terminal text-xs ${showChat ? '!border-[var(--terminal-accent)] !text-[var(--terminal-accent)]' : ''}`}
           >
             CHAT_HELPER
@@ -234,11 +283,10 @@ export default function ResumeEditorPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-2 px-2 md:px-1 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${
-                  activeTab === tab 
-                    ? 'text-[var(--terminal-accent)]' 
+                className={`pb-2 px-2 md:px-1 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab
+                    ? 'text-[var(--terminal-accent)]'
                     : 'text-[var(--terminal-muted)] hover:text-white'
-                }`}
+                  }`}
               >
                 {tab}
                 {activeTab === tab && (

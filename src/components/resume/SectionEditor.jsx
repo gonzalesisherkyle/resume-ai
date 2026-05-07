@@ -1,6 +1,7 @@
 import { useModal } from '../../context/ModalContext';
+import TerminalField from '../common/TerminalField';
 
-export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onRemove, type }) {
+export default function SectionEditor({ title, items, onAdd, onUpdate, onRemove, type }) {
   const { confirm } = useModal();
   const addBullet = (idx) => {
     const bullets = [...(items[idx].bullets || []), { text: '' }];
@@ -51,45 +52,18 @@ export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onR
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {type === 'experience' ? (
                 <>
-                  <div>
-                    <label className="terminal-label">Role_Title</label>
-                    <input list="job-titles" value={item.role || ''} onChange={e => onUpdate(idx, { role: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Role / Title" />
-                  </div>
-                  <div>
-                    <label className="terminal-label">Entity_Name</label>
-                    <input value={item.company || ''} onChange={e => onUpdate(idx, { company: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Company" />
-                  </div>
-                  <div>
-                    <label className="terminal-label">Start_Timestamp</label>
-                    <input value={item.startDate || ''} onChange={e => onUpdate(idx, { startDate: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Jan 2023" />
-                  </div>
-                  <div>
-                    <label className="terminal-label">End_Timestamp</label>
-                    <input value={item.endDate || ''} onChange={e => onUpdate(idx, { endDate: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Present" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="terminal-label">Geographic_Tag</label>
-                    <input list="locations" value={item.location || ''} onChange={e => onUpdate(idx, { location: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Location" />
-                  </div>
+                  <TerminalField label="Role_Title" value={item.role || ''} onChange={e => onUpdate(idx, { role: e.target.value })} placeholder="Role / Title" />
+                  <TerminalField label="Entity_Name" value={item.company || ''} onChange={e => onUpdate(idx, { company: e.target.value })} placeholder="Company" />
+                  <TerminalField label="Start_Timestamp" value={item.startDate || ''} onChange={e => onUpdate(idx, { startDate: e.target.value })} placeholder="Jan 2023" />
+                  <TerminalField label="End_Timestamp" value={item.endDate || ''} onChange={e => onUpdate(idx, { endDate: e.target.value })} placeholder="Present" />
+                  <TerminalField fieldClassName="md:col-span-2" label="Geographic_Tag" value={item.location || ''} onChange={e => onUpdate(idx, { location: e.target.value })} placeholder="Location" />
                 </>
               ) : (
                 <>
-                  <div>
-                    <label className="terminal-label">Project_Identity</label>
-                    <input value={item.name || ''} onChange={e => onUpdate(idx, { name: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="Project Name" />
-                  </div>
-                  <div>
-                    <label className="terminal-label">Technology_Stack</label>
-                    <input list="tech-skills" value={item.technologies || ''} onChange={e => onUpdate(idx, { technologies: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="React, Node.js, MongoDB" />
-                  </div>
-                  <div>
-                    <label className="terminal-label">Live_Deployment_URL</label>
-                    <input value={item.liveUrl || ''} onChange={e => onUpdate(idx, { liveUrl: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="https://..." />
-                  </div>
-                  <div>
-                    <label className="terminal-label">Source_Code_Repository</label>
-                    <input value={item.githubUrl || ''} onChange={e => onUpdate(idx, { githubUrl: e.target.value })} className="input-terminal !py-1.5 !text-xs" placeholder="github.com/..." />
-                  </div>
+                  <TerminalField label="Project_Identity" value={item.name || ''} onChange={e => onUpdate(idx, { name: e.target.value })} placeholder="Project Name" />
+                  <TerminalField label="Technology_Stack" value={item.technologies || ''} onChange={e => onUpdate(idx, { technologies: e.target.value })} placeholder="React, Node.js, MongoDB" />
+                  <TerminalField label="Live_Deployment_URL" value={item.liveUrl || ''} onChange={e => onUpdate(idx, { liveUrl: e.target.value })} placeholder="https://..." />
+                  <TerminalField label="Source_Code_Repository" value={item.githubUrl || ''} onChange={e => onUpdate(idx, { githubUrl: e.target.value })} placeholder="github.com/..." />
                 </>
               )}
             </div>
@@ -101,15 +75,15 @@ export default function SectionEditor({ title, icon, items, onAdd, onUpdate, onR
                 <button onClick={() => addBullet(idx)} className="text-[10px] text-[var(--terminal-accent)] hover:underline">+ ADD_ENTRY</button>
               </div>
               {(item.bullets || []).map((bullet, bIdx) => (
-                <div key={bIdx} className="flex gap-2 items-start group/bullet">
-                  <span className="text-[var(--terminal-accent)] mt-2 text-xs font-bold flex-shrink-0">{'>'}</span>
-                  <input
+                <div key={bIdx} className="grid grid-cols-[1rem_minmax(0,1fr)_1.75rem] gap-2 items-start group/bullet">
+                  <span className="text-[var(--terminal-accent)] pt-[0.4rem] text-xs font-bold">{'>'}</span>
+                  <TerminalField
                     value={bullet.text || ''}
                     onChange={e => updateBullet(idx, bIdx, e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 flex-1 text-[11px] text-[var(--terminal-text)] py-1 placeholder-[var(--terminal-border)] min-w-0"
+                    className="!px-3"
                     placeholder="Enter description entry..."
                   />
-                  <button onClick={() => removeBullet(idx, bIdx)} className="p-1 text-red-500 md:opacity-0 md:group-hover/bullet:opacity-100 transition-all flex-shrink-0">
+                  <button onClick={() => removeBullet(idx, bIdx)} className="mt-1 p-1 text-red-500 md:opacity-0 md:group-hover/bullet:opacity-100 transition-all">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>

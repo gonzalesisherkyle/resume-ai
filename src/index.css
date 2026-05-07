@@ -67,7 +67,20 @@
   .input-terminal {
     @apply w-full bg-[var(--terminal-bg)] border border-[var(--terminal-border)] px-4 py-2 
            text-[var(--terminal-text)] font-mono placeholder-[var(--terminal-muted)]
-           focus:outline-none focus:border-[var(--terminal-accent)] transition-colors;
+           outline-none transition-all duration-200;
+    caret-color: var(--terminal-accent);
+  }
+
+  .input-terminal:hover {
+    border-color: color-mix(in srgb, var(--terminal-border) 60%, var(--terminal-muted));
+  }
+
+  .input-terminal:focus,
+  .input-terminal:focus-visible,
+  .input-terminal:active {
+    border-color: var(--terminal-accent);
+    background: var(--terminal-bg);
+    box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.22), 0 0 18px rgba(0, 243, 255, 0.12);
   }
 
   .terminal-label {
@@ -104,4 +117,3 @@
 .cursor-blink {
   animation: blink 1s step-end infinite;
 }
-
