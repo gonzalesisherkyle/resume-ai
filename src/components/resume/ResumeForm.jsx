@@ -107,6 +107,19 @@ export default function ResumeForm({ version, onSave }) {
     update('education', (data.education || []).filter((_, i) => i !== idx));
   };
 
+  // Certification helpers
+  const addCertification = () => {
+    update('certifications', [...(data.certifications || []), { name: '', issuer: '', date: '', url: '' }]);
+  };
+  const updateCertification = (idx, updates) => {
+    const certs = [...(data.certifications || [])];
+    certs[idx] = { ...certs[idx], ...updates };
+    update('certifications', certs);
+  };
+  const removeCertification = (idx) => {
+    update('certifications', (data.certifications || []).filter((_, i) => i !== idx));
+  };
+
   return (
     <div className="space-y-8 font-mono pb-20">
       {/* Save bar */}
@@ -338,6 +351,45 @@ export default function ResumeForm({ version, onSave }) {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Certifications */}
+      <div className="terminal-card !p-0">
+        <header className="terminal-header bg-[var(--terminal-header)]">
+          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">CERTIFICATION_REGISTRY</span>
+          <button onClick={addCertification} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">
+            [ADD_CERT]
+          </button>
+        </header>
+        <div className="p-6 space-y-6">
+          {(data.certifications || []).map((cert, idx) => (
+            <div key={idx} className="border-l-2 border-[var(--terminal-border)] pl-4 group">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-[10px] text-[var(--terminal-muted)] font-bold">CERT_RECORD_0{idx + 1}</span>
+                <button
+                  onClick={async () => {
+                    const ok = await confirm('Are you sure you want to purge this certification record?');
+                    if (ok) removeCertification(idx);
+                  }}
+                  className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  [PURGE]
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TerminalField label="Certification_Name" value={cert.name || ''} onChange={e => updateCertification(idx, { name: e.target.value })} placeholder="AWS Certified Developer" />
+                <TerminalField label="Issuer" value={cert.issuer || ''} onChange={e => updateCertification(idx, { issuer: e.target.value })} placeholder="Amazon Web Services" />
+                <TerminalField label="Issue_Date" value={cert.date || ''} onChange={e => updateCertification(idx, { date: e.target.value })} placeholder="May 2026" />
+                <TerminalField label="Credential_URL" value={cert.url || ''} onChange={e => updateCertification(idx, { url: e.target.value })} placeholder="https://..." />
+              </div>
+            </div>
+          ))}
+          {(data.certifications || []).length === 0 && (
+            <div className="text-center py-8 text-[var(--terminal-muted)] text-xs italic">
+              [NO_CERTIFICATIONS_REGISTERED]
+            </div>
+          )}
         </div>
       </div>
 

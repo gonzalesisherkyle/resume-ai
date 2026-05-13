@@ -3,6 +3,10 @@ import { getResumeSettings, isResumeSectionVisible } from './sectionVisibility';
 export default function ResumePreview({ version }) {
   const c = version.contact || {};
   const contactParts = [c.email, c.phone, c.linkedin, c.github, c.portfolio, c.location].filter(Boolean);
+  const toExternalUrl = (url) => {
+    const value = `${url || ''}`.trim();
+    return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  };
   
   const settings = getResumeSettings(version.settings);
 
@@ -50,9 +54,9 @@ export default function ResumePreview({ version }) {
           {[
             c.email && <a key="email" href={`mailto:${c.email}`} className="hover:underline">{c.email}</a>,
             c.phone && <span key="phone">{c.phone}</span>,
-            c.linkedin && <a key="linkedin" href={c.linkedin.startsWith('http') ? c.linkedin : `https://${c.linkedin}`} target="_blank" rel="noreferrer" className="hover:underline">{c.linkedin}</a>,
-            c.github && <a key="github" href={c.github.startsWith('http') ? c.github : `https://${c.github}`} target="_blank" rel="noreferrer" className="hover:underline">{c.github}</a>,
-            c.portfolio && <a key="portfolio" href={c.portfolio.startsWith('http') ? c.portfolio : `https://${c.portfolio}`} target="_blank" rel="noreferrer" className="hover:underline">{c.portfolio}</a>,
+            c.linkedin && <a key="linkedin" href={toExternalUrl(c.linkedin)} target="_blank" rel="noreferrer" className="hover:underline">{c.linkedin}</a>,
+            c.github && <a key="github" href={toExternalUrl(c.github)} target="_blank" rel="noreferrer" className="hover:underline">{c.github}</a>,
+            c.portfolio && <a key="portfolio" href={toExternalUrl(c.portfolio)} target="_blank" rel="noreferrer" className="hover:underline">{c.portfolio}</a>,
             c.location && <span key="location">{c.location}</span>
           ].filter(Boolean).reduce((prev, curr, i) => [prev, i > 0 && (isModern || isMinimalist || isCreative ? ' • ' : ' | '), curr])}
         </p>
@@ -117,8 +121,8 @@ export default function ResumePreview({ version }) {
               <div className="flex justify-between items-baseline font-bold text-[1em]">
                 <span>{proj.name}</span>
                 <div className="flex gap-2 text-[0.85em] font-normal">
-                  {proj.githubUrl && <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">GitHub</a>}
-                  {proj.liveUrl && <a href={proj.liveUrl} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Live Demo</a>}
+                  {proj.githubUrl && <a href={toExternalUrl(proj.githubUrl)} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">GitHub</a>}
+                  {proj.liveUrl && <a href={toExternalUrl(proj.liveUrl)} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Live Demo</a>}
                 </div>
               </div>
               {proj.technologies && <div className="italic text-[0.9em] text-gray-700 mb-1">{proj.technologies}</div>}
@@ -157,7 +161,17 @@ export default function ResumePreview({ version }) {
             Certifications
           </h2>
           {version.certifications.map((cert, i) => cert.name ? (
-            <p key={i} className="text-[0.95em] mb-1">{cert.name}{cert.issuer ? ` — ${cert.issuer}` : ''}{cert.date ? ` (${cert.date})` : ''}</p>
+            <p key={i} className="text-[0.95em] mb-1">
+              {cert.name}
+              {cert.issuer ? ` — ${cert.issuer}` : ''}
+              {cert.date ? ` (${cert.date})` : ''}
+              {cert.url && (
+                <>
+                  {' | '}
+                  <a href={toExternalUrl(cert.url)} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Credential</a>
+                </>
+              )}
+            </p>
           ) : null)}
         </>
       )}
