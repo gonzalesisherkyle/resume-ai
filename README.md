@@ -1,16 +1,89 @@
-# React + Vite
+# ResumeAI Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React/Vite frontend for the ResumeAI resume builder. It provides the authenticated editor, resume preview, ATS score view, job analyzer, public resume pages, exports, sharing controls, and AI chat surface.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19
+- Vite 8
+- React Router
+- Axios
+- Tailwind CSS
+- React Hot Toast
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 20 or newer recommended
+- npm or pnpm
+- The backend API running locally, usually at `http://127.0.0.1:5000`
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+The dev server runs on:
+
+```text
+http://localhost:5173
+```
+
+## Environment
+
+Create `.env` from `.env.example`.
+
+```env
+VITE_API_URL=/api
+VITE_PROXY_TARGET=http://127.0.0.1:5000
+```
+
+`VITE_API_URL` controls the Axios base URL. In local development it defaults to `/api`, which is proxied by Vite.
+
+`VITE_PROXY_TARGET` points the Vite dev proxy at the backend API.
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+npm run deploy
+```
+
+`npm run deploy` builds the app and deploys `dist` with Wrangler Pages.
+
+## Main Routes
+
+- `/login` - sign in
+- `/register` - create an account
+- `/dashboard` - resume list
+- `/resume/:id` - resume editor
+- `/score/:id` - ATS score view
+- `/job-analyzer` - job description analyzer
+- `/share/:shareId` - public read-only resume
+
+## Development Notes
+
+- Auth tokens are stored in `localStorage`.
+- Requests are made through `src/api/axios.js`.
+- Protected pages redirect unauthenticated users to `/login`.
+- Resume preview rendering lives in `src/components/resume/ResumePreview.jsx`.
+- Resume editing lives in `src/components/resume/ResumeForm.jsx`.
+
+## Build
+
+```bash
+npm run build
+```
+
+The production output is written to `dist`.
+
+## Troubleshooting
+
+- If API calls fail locally, confirm the backend is running and `VITE_PROXY_TARGET` matches the backend URL.
+- If auth redirects unexpectedly, clear `localStorage` and log in again.
+- If Vite cannot use port `5173`, stop the existing process or run Vite with another port.
