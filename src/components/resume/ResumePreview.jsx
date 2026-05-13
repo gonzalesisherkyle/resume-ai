@@ -1,12 +1,10 @@
+import { getResumeSettings, isResumeSectionVisible } from './sectionVisibility';
+
 export default function ResumePreview({ version }) {
   const c = version.contact || {};
   const contactParts = [c.email, c.phone, c.linkedin, c.github, c.portfolio, c.location].filter(Boolean);
   
-  const settings = version.settings || {
-    template: 'standard',
-    fontFamily: 'Arial, Helvetica, sans-serif',
-    fontSize: '11pt'
-  };
+  const settings = getResumeSettings(version.settings);
 
   const isExecutive = settings.template === 'executive';
   const isModern = settings.template === 'modern';
@@ -15,6 +13,12 @@ export default function ResumePreview({ version }) {
   const isCreative = settings.template === 'creative';
   const isAcademic = settings.template === 'academic';
   const isCompact = settings.template === 'compact';
+  const showSummary = isResumeSectionVisible(version, 'summary');
+  const showTechnicalSkills = isResumeSectionVisible(version, 'technicalSkills');
+  const showExperience = isResumeSectionVisible(version, 'experience');
+  const showProjects = isResumeSectionVisible(version, 'projects');
+  const showEducation = isResumeSectionVisible(version, 'education');
+  const showCertifications = isResumeSectionVisible(version, 'certifications');
 
   const getHeaderClass = () => {
     if (isExecutive) return 'text-[12pt] border-b-2 border-black text-center';
@@ -55,7 +59,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Summary */}
-      {version.summary && (
+      {showSummary && version.summary && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Professional Summary
@@ -65,7 +69,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Technical Skills */}
-      {version.technicalSkills?.length > 0 && version.technicalSkills.some(s => s.skills) && (
+      {showTechnicalSkills && version.technicalSkills?.length > 0 && version.technicalSkills.some(s => s.skills) && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Technical Skills
@@ -77,7 +81,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Experience */}
-      {version.experience?.length > 0 && (
+      {showExperience && version.experience?.length > 0 && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Professional Experience
@@ -103,7 +107,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Projects */}
-      {version.projects?.length > 0 && (
+      {showProjects && version.projects?.length > 0 && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Projects
@@ -129,7 +133,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Education */}
-      {version.education?.length > 0 && (
+      {showEducation && version.education?.length > 0 && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Education
@@ -147,7 +151,7 @@ export default function ResumePreview({ version }) {
       )}
 
       {/* Certifications */}
-      {version.certifications?.length > 0 && version.certifications.some(c => c.name) && (
+      {showCertifications && version.certifications?.length > 0 && version.certifications.some(c => c.name) && (
         <>
           <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
             Certifications

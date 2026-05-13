@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SectionEditor from './SectionEditor';
 import { useModal } from '../../context/ModalContext';
 import TerminalField from '../common/TerminalField';
+import { RESUME_SECTION_OPTIONS, getSectionVisibility } from './sectionVisibility';
 
 export default function ResumeForm({ version, onSave }) {
   const { confirm } = useModal();
@@ -37,7 +38,22 @@ export default function ResumeForm({ version, onSave }) {
     setDirty(true);
   };
 
+  const updateSectionVisibility = (sectionKey, isVisible) => {
+    setData(prev => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        sectionVisibility: {
+          ...getSectionVisibility(prev.settings),
+          [sectionKey]: isVisible,
+        },
+      },
+    }));
+    setDirty(true);
+  };
+
   const handleSave = () => { onSave(data); setDirty(false); };
+  const sectionVisibility = getSectionVisibility(data.settings);
 
   // Skills helpers
   const addSkillCategory = () => {
@@ -111,39 +127,90 @@ export default function ResumeForm({ version, onSave }) {
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">RENDER_CONFIG</span>
         </header>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <TerminalField as="select" label="Paper_Size" value={data.settings?.paperSize || 'Letter'} onChange={e => updateSettings('paperSize', e.target.value)}>
-              <option value="Letter">US_LETTER (8.5" x 11")</option>
-              <option value="Legal">US_LEGAL (8.5" x 14")</option>
-              <option value="Folio">US_FOLIO (8.5" x 13")</option>
-              <option value="A4">A4_ISO (210 x 297 mm)</option>
-              <option value="A5">A5_ISO (148 x 210 mm)</option>
-              <option value="Executive">EXECUTIVE (7.25" x 10.5")</option>
-          </TerminalField>
-          <TerminalField as="select" label="Template_ID" value={data.settings?.template || 'standard'} onChange={e => updateSettings('template', e.target.value)}>
-              <option value="standard">CLASSIC_STD</option>
-              <option value="executive">EXEC_PRO</option>
-              <option value="modern">MODERN_CLEAN</option>
-              <option value="minimalist">MINIMAL_SLK</option>
-              <option value="technical">TECH_STRUCT</option>
-              <option value="creative">CREATIVE_VIBE</option>
-              <option value="academic">ACADEMIC_FORMAL</option>
-              <option value="compact">COMPACT_TIGHT</option>
-          </TerminalField>
-          <TerminalField as="select" label="Font_Family" value={data.settings?.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateSettings('fontFamily', e.target.value)}>
-              <option value="Arial, Helvetica, sans-serif">ARIAL_SANS</option>
-              <option value="'Roboto', sans-serif">ROBOTO_SANS</option>
-              <option value="'Inter', sans-serif">INTER_SANS</option>
-              <option value="'Times New Roman', Times, serif">TIMES_SERIF</option>
-              <option value="'Fira Code', monospace">FIRA_MONO</option>
-              <option value="'Courier New', monospace">COURIER_MONO</option>
-          </TerminalField>
-          <TerminalField as="select" label="Base_Size" value={data.settings?.fontSize || '11pt'} onChange={e => updateSettings('fontSize', e.target.value)}>
-              <option value="9pt">9.0_PT</option>
-              <option value="10pt">10.0_PT</option>
-              <option value="11pt">11.0_PT</option>
-              <option value="12pt">12.0_PT</option>
-          </TerminalField>
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <TerminalField as="select" label="Paper_Size" value={data.settings?.paperSize || 'Letter'} onChange={e => updateSettings('paperSize', e.target.value)}>
+                <option value="Letter">US_LETTER (8.5" x 11")</option>
+                <option value="Legal">US_LEGAL (8.5" x 14")</option>
+                <option value="Folio">US_FOLIO (8.5" x 13")</option>
+                <option value="A4">A4_ISO (210 x 297 mm)</option>
+                <option value="A5">A5_ISO (148 x 210 mm)</option>
+                <option value="Executive">EXECUTIVE (7.25" x 10.5")</option>
+            </TerminalField>
+            <TerminalField as="select" label="Template_ID" value={data.settings?.template || 'standard'} onChange={e => updateSettings('template', e.target.value)}>
+                <option value="standard">CLASSIC_STD</option>
+                <option value="executive">EXEC_PRO</option>
+                <option value="modern">MODERN_CLEAN</option>
+                <option value="minimalist">MINIMAL_SLK</option>
+                <option value="technical">TECH_STRUCT</option>
+                <option value="creative">CREATIVE_VIBE</option>
+                <option value="academic">ACADEMIC_FORMAL</option>
+                <option value="compact">COMPACT_TIGHT</option>
+            </TerminalField>
+            <TerminalField as="select" label="Font_Family" value={data.settings?.fontFamily || 'Arial, Helvetica, sans-serif'} onChange={e => updateSettings('fontFamily', e.target.value)}>
+                <option value="Arial, Helvetica, sans-serif">ARIAL_SANS</option>
+                <option value="'Roboto', sans-serif">ROBOTO_SANS</option>
+                <option value="'Inter', sans-serif">INTER_SANS</option>
+                <option value="'Times New Roman', Times, serif">TIMES_SERIF</option>
+                <option value="'Fira Code', monospace">FIRA_MONO</option>
+                <option value="'Courier New', monospace">COURIER_MONO</option>
+            </TerminalField>
+            <TerminalField as="select" label="Base_Size" value={data.settings?.fontSize || '11pt'} onChange={e => updateSettings('fontSize', e.target.value)}>
+                <option value="9pt">9.0_PT</option>
+                <option value="10pt">10.0_PT</option>
+                <option value="11pt">11.0_PT</option>
+                <option value="12pt">12.0_PT</option>
+            </TerminalField>
+          </div>
+
+          <div className="border-t border-[var(--terminal-border)] pt-5">
+            <div className="terminal-label">Include_Sections</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {RESUME_SECTION_OPTIONS.map(section => {
+                const checked = sectionVisibility[section.key] !== false;
+
+                return (
+                  <label
+                    key={section.key}
+                    className={`flex min-w-0 cursor-pointer items-center justify-between gap-3 border px-3 py-2 transition-colors ${
+                      checked
+                        ? 'border-[var(--terminal-border)] bg-[var(--terminal-bg)] text-[var(--terminal-text)] hover:border-[var(--terminal-accent)]'
+                        : 'border-[var(--terminal-border)] bg-[var(--terminal-surface)] text-[var(--terminal-muted)] opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={e => updateSectionVisibility(section.key, e.target.checked)}
+                      className="peer sr-only"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[10px] font-bold uppercase tracking-widest">{section.label}</span>
+                      <span className={`block text-[9px] uppercase tracking-widest ${checked ? 'text-[var(--terminal-accent)]' : 'text-[var(--terminal-muted)]'}`}>
+                        {checked ? 'INCLUDED' : 'EXCLUDED'}
+                      </span>
+                    </span>
+                    <span
+                      className={`relative h-5 w-10 flex-shrink-0 rounded-full border transition-colors ${
+                        checked
+                          ? 'border-[var(--terminal-accent)] bg-[rgba(0,243,255,0.18)]'
+                          : 'border-[var(--terminal-border)] bg-[var(--terminal-bg)]'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <span
+                        className={`absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full transition-all ${
+                          checked
+                            ? 'left-[22px] bg-[var(--terminal-accent)]'
+                            : 'left-1 bg-[var(--terminal-muted)]'
+                        }`}
+                      />
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
