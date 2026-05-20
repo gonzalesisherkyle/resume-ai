@@ -10,6 +10,7 @@ const EXPERIENCE_FIELDS = [
   { key: 'startDate', label: 'Start_Timestamp', placeholder: 'Jan 2023' },
   { key: 'endDate', label: 'End_Timestamp', placeholder: 'Present', defaultValue: 'Present' },
   { key: 'location', label: 'Geographic_Tag', placeholder: 'Location', fullWidth: true },
+  { key: 'bullets', label: 'Description_Log_Entries', placeholder: 'Enter description entry...', type: 'bullets', fullWidth: true },
 ];
 
 const PROJECT_FIELDS = [
@@ -17,6 +18,7 @@ const PROJECT_FIELDS = [
   { key: 'technologies', label: 'Technology_Stack', placeholder: 'React, Node.js, MongoDB' },
   { key: 'liveUrl', label: 'Live_Deployment_URL', placeholder: 'https://...' },
   { key: 'githubUrl', label: 'Source_Code_Repository', placeholder: 'github.com/...' },
+  { key: 'bullets', label: 'Description_Log_Entries', placeholder: 'Enter description entry...', type: 'bullets', fullWidth: true },
 ];
 
 const CERTIFICATION_FIELDS = [
@@ -102,7 +104,7 @@ export default function ResumeForm({ version, onSave }) {
   const addExperience = async () => {
     const result = await formModal('ADD_EXPERIENCE_RECORD', EXPERIENCE_FIELDS);
     if (!result) return;
-    update('experience', [...(data.experience || []), { ...result, bullets: [{ text: '' }] }]);
+    update('experience', [...(data.experience || []), result]);
   };
   const updateExperience = (idx, updates) => {
     const exp = [...(data.experience || [])];
@@ -117,7 +119,7 @@ export default function ResumeForm({ version, onSave }) {
   const addProject = async () => {
     const result = await formModal('ADD_PROJECT_DATA', PROJECT_FIELDS);
     if (!result) return;
-    update('projects', [...(data.projects || []), { ...result, bullets: [{ text: '' }] }]);
+    update('projects', [...(data.projects || []), result]);
   };
   const updateProject = (idx, updates) => {
     const proj = [...(data.projects || [])];

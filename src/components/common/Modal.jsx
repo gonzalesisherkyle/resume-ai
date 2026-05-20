@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function Modal({ isOpen, title, children, onClose, footer }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" 
-        onClick={onClose}
-      />
-      
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-sm animate-fade-in flex justify-center items-start md:items-center p-4 md:py-12"
+      onClick={onClose}
+    >
       {/* Modal Content */}
-      <div className="relative w-full max-w-md terminal-window animate-slide-up shadow-[0_0_50px_rgba(0,0,0,0.5)] border-[var(--terminal-accent)]/30">
+      <div 
+        className="relative w-full max-w-md md:max-w-2xl terminal-window animate-slide-up shadow-[0_0_50px_rgba(0,0,0,0.5)] border-[var(--terminal-accent)]/30 my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="terminal-header flex justify-between items-center bg-[var(--terminal-header)]">
           <div className="flex items-center gap-2">
             <div className="flex gap-1.5">
