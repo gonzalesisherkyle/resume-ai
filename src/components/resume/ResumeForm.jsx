@@ -43,6 +43,11 @@ const CHARACTER_REFERENCE_FIELDS = [
   { key: 'phone', label: 'Contact_Number', placeholder: '+63-XXX-XXX-XXXX' },
 ];
 
+const SKILL_FIELDS = [
+  { key: 'category', label: 'Category_Name', placeholder: 'LANGUAGES' },
+  { key: 'skills', label: 'Competencies_List', placeholder: 'JS, TS, RUST...', fullWidth: true },
+];
+
 export default function ResumeForm({ version, onSave }) {
   const { confirm, formModal } = useModal();
   const [data, setData] = useState(version);
@@ -94,9 +99,11 @@ export default function ResumeForm({ version, onSave }) {
   const handleSave = () => { onSave(data); setDirty(false); };
   const sectionVisibility = getSectionVisibility(data.settings);
 
-  // Skills helpers
-  const addSkillCategory = () => {
-    update('technicalSkills', [...(data.technicalSkills || []), { category: '', skills: '' }]);
+  // Skills helpers (modal-based add)
+  const addSkillCategory = async () => {
+    const result = await formModal('ADD_SKILL_CATEGORY', SKILL_FIELDS);
+    if (!result) return;
+    update('technicalSkills', [...(data.technicalSkills || []), result]);
   };
   const updateSkill = (idx, field, val) => {
     const skills = [...(data.technicalSkills || [])];
