@@ -28,6 +28,13 @@ const CERTIFICATION_FIELDS = [
   { key: 'url', label: 'Credential_URL', placeholder: 'https://...' },
 ];
 
+const EDUCATION_FIELDS = [
+  { key: 'institution', label: 'Institution', placeholder: 'University Name' },
+  { key: 'degree', label: 'Degree_Type', placeholder: 'B.S.' },
+  { key: 'field', label: 'Field_Of_Study', placeholder: 'Computer Science' },
+  { key: 'endDate', label: 'Completion_Date', placeholder: 'May 2023' },
+];
+
 const CHARACTER_REFERENCE_FIELDS = [
   { key: 'fullName', label: 'Full_Name', placeholder: 'Juan Dela Cruz' },
   { key: 'position', label: 'Position', placeholder: 'Senior Manager' },
@@ -130,9 +137,11 @@ export default function ResumeForm({ version, onSave }) {
     update('projects', (data.projects || []).filter((_, i) => i !== idx));
   };
 
-  // Education helpers
-  const addEducation = () => {
-    update('education', [...(data.education || []), { institution: '', degree: '', field: '', endDate: '' }]);
+  // Education helpers (modal-based add)
+  const addEducation = async () => {
+    const result = await formModal('ADD_ACADEMIC_RECORD', EDUCATION_FIELDS);
+    if (!result) return;
+    update('education', [...(data.education || []), result]);
   };
   const updateEducation = (idx, updates) => {
     const edu = [...(data.education || [])];
@@ -335,19 +344,42 @@ export default function ResumeForm({ version, onSave }) {
             [ADD_CATEGORY]
           </button>
         </header>
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-6">
           {(data.technicalSkills || []).map((cat, idx) => (
-            <div key={idx} className="flex flex-col md:flex-row gap-4 items-start group">
-              <TerminalField fieldClassName="w-full md:w-40 flex-shrink-0" label="Category" value={cat.category} onChange={e => updateSkill(idx, 'category', e.target.value)} placeholder="LANGUAGES" />
-              <div className="w-full md:flex-1 relative">
-                <TerminalField label="Competencies" value={cat.skills} onChange={e => updateSkill(idx, 'skills', e.target.value)} placeholder="JS, TS, RUST..." />
-                <button onClick={() => removeSkill(idx)} className="absolute -right-2 top-0 p-2 text-red-500 md:hidden">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            <div key={idx} className="border-b border-[var(--terminal-border)] pb-6 last:border-b-0 last:pb-0 md:border-none md:pb-0 group">
+              {/* Mobile Header (hidden on desktop) */}
+              <div className="flex justify-between items-center mb-3 md:hidden">
+                <span className="text-[10px] text-[var(--terminal-muted)] font-bold">SKILL_GROUP_0{idx + 1}</span>
+                <button 
+                  onClick={() => removeSkill(idx)} 
+                  className="text-[10px] text-red-500 hover:underline"
+                >
+                  [REMOVE_GROUP]
                 </button>
               </div>
-              <button onClick={() => removeSkill(idx)} className="hidden md:block p-2 text-red-500 opacity-0 group-hover:opacity-100 transition-all mt-4">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+
+              {/* Form inputs row */}
+              <div className="flex gap-4 items-stretch">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-[10rem_1fr] gap-4">
+                  <TerminalField label="Category" value={cat.category} onChange={e => updateSkill(idx, 'category', e.target.value)} placeholder="LANGUAGES" />
+                  <TerminalField label="Competencies" value={cat.skills} onChange={e => updateSkill(idx, 'skills', e.target.value)} placeholder="JS, TS, RUST..." />
+                </div>
+                {/* Desktop delete button (hidden on mobile) */}
+                <div className="hidden md:flex flex-col items-center justify-center w-8 flex-shrink-0">
+                  <label className="terminal-label opacity-0 select-none pointer-events-none">_</label>
+                  <div className="flex-1 flex items-center justify-center">
+                    <button 
+                      onClick={() => removeSkill(idx)} 
+                      className="p-2 text-red-500 hover:text-red-400 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                      title="Remove category"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
