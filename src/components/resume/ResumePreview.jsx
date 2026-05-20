@@ -175,6 +175,32 @@ export default function ResumePreview({ version }) {
           ) : null)}
         </>
       )}
+
+      {/* Character References */}
+      {isResumeSectionVisible(version, 'characterReferences') && version.characterReferences?.length > 0 && version.characterReferences.some(r => r.fullName) && (
+        <>
+          <h2 className={`font-bold uppercase pb-[2px] mt-4 mb-2 ${getHeaderClass()}`}>
+            Character References
+          </h2>
+          {version.characterReferences.map((ref, i) => ref.fullName ? (
+            <div key={i} className="mb-2">
+              <div className="flex justify-between items-baseline">
+                <span className="font-bold text-[1em]">{ref.fullName}</span>
+                {(ref.email || ref.phone) && (
+                  <span className="text-[0.85em] text-gray-600">
+                    {[ref.email, ref.phone].filter(Boolean).join(' | ')}
+                  </span>
+                )}
+              </div>
+              {(ref.position || ref.company) && (
+                <div className="italic text-[0.95em]">
+                  {ref.position}{ref.position && ref.company ? ' at ' : ''}{ref.company}
+                </div>
+              )}
+            </div>
+          ) : null)}
+        </>
+      )}
     </div>
   );
 }

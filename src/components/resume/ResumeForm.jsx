@@ -4,8 +4,38 @@ import { useModal } from '../../context/ModalContext';
 import TerminalField from '../common/TerminalField';
 import { RESUME_SECTION_OPTIONS, getSectionVisibility } from './sectionVisibility';
 
+const EXPERIENCE_FIELDS = [
+  { key: 'role', label: 'Role_Title', placeholder: 'Role / Title' },
+  { key: 'company', label: 'Entity_Name', placeholder: 'Company' },
+  { key: 'startDate', label: 'Start_Timestamp', placeholder: 'Jan 2023' },
+  { key: 'endDate', label: 'End_Timestamp', placeholder: 'Present', defaultValue: 'Present' },
+  { key: 'location', label: 'Geographic_Tag', placeholder: 'Location', fullWidth: true },
+];
+
+const PROJECT_FIELDS = [
+  { key: 'name', label: 'Project_Identity', placeholder: 'Project Name' },
+  { key: 'technologies', label: 'Technology_Stack', placeholder: 'React, Node.js, MongoDB' },
+  { key: 'liveUrl', label: 'Live_Deployment_URL', placeholder: 'https://...' },
+  { key: 'githubUrl', label: 'Source_Code_Repository', placeholder: 'github.com/...' },
+];
+
+const CERTIFICATION_FIELDS = [
+  { key: 'name', label: 'Certification_Name', placeholder: 'AWS Certified Developer' },
+  { key: 'issuer', label: 'Issuer', placeholder: 'Amazon Web Services' },
+  { key: 'date', label: 'Issue_Date', placeholder: 'May 2026' },
+  { key: 'url', label: 'Credential_URL', placeholder: 'https://...' },
+];
+
+const CHARACTER_REFERENCE_FIELDS = [
+  { key: 'fullName', label: 'Full_Name', placeholder: 'Juan Dela Cruz' },
+  { key: 'position', label: 'Position', placeholder: 'Senior Manager' },
+  { key: 'company', label: 'Company', placeholder: 'Acme Corp' },
+  { key: 'email', label: 'Email_Address', placeholder: 'juan@company.com', type: 'email' },
+  { key: 'phone', label: 'Contact_Number', placeholder: '+63-XXX-XXX-XXXX' },
+];
+
 export default function ResumeForm({ version, onSave }) {
-  const { confirm } = useModal();
+  const { confirm, formModal } = useModal();
   const [data, setData] = useState(version);
   const [dirty, setDirty] = useState(false);
 
@@ -68,9 +98,11 @@ export default function ResumeForm({ version, onSave }) {
     update('technicalSkills', (data.technicalSkills || []).filter((_, i) => i !== idx));
   };
 
-  // Experience helpers
-  const addExperience = () => {
-    update('experience', [...(data.experience || []), { company: '', role: '', startDate: '', endDate: 'Present', location: '', bullets: [{ text: '' }] }]);
+  // Experience helpers (modal-based add)
+  const addExperience = async () => {
+    const result = await formModal('ADD_EXPERIENCE_RECORD', EXPERIENCE_FIELDS);
+    if (!result) return;
+    update('experience', [...(data.experience || []), { ...result, bullets: [{ text: '' }] }]);
   };
   const updateExperience = (idx, updates) => {
     const exp = [...(data.experience || [])];
@@ -81,9 +113,11 @@ export default function ResumeForm({ version, onSave }) {
     update('experience', (data.experience || []).filter((_, i) => i !== idx));
   };
 
-  // Project helpers
-  const addProject = () => {
-    update('projects', [...(data.projects || []), { name: '', technologies: '', bullets: [{ text: '' }] }]);
+  // Project helpers (modal-based add)
+  const addProject = async () => {
+    const result = await formModal('ADD_PROJECT_DATA', PROJECT_FIELDS);
+    if (!result) return;
+    update('projects', [...(data.projects || []), { ...result, bullets: [{ text: '' }] }]);
   };
   const updateProject = (idx, updates) => {
     const proj = [...(data.projects || [])];
@@ -107,9 +141,11 @@ export default function ResumeForm({ version, onSave }) {
     update('education', (data.education || []).filter((_, i) => i !== idx));
   };
 
-  // Certification helpers
-  const addCertification = () => {
-    update('certifications', [...(data.certifications || []), { name: '', issuer: '', date: '', url: '' }]);
+  // Certification helpers (modal-based add)
+  const addCertification = async () => {
+    const result = await formModal('ADD_CERTIFICATION_RECORD', CERTIFICATION_FIELDS);
+    if (!result) return;
+    update('certifications', [...(data.certifications || []), result]);
   };
   const updateCertification = (idx, updates) => {
     const certs = [...(data.certifications || [])];
@@ -118,6 +154,21 @@ export default function ResumeForm({ version, onSave }) {
   };
   const removeCertification = (idx) => {
     update('certifications', (data.certifications || []).filter((_, i) => i !== idx));
+  };
+
+  // Character Reference helpers (modal-based add)
+  const addCharacterReference = async () => {
+    const result = await formModal('ADD_CHARACTER_REFERENCE', CHARACTER_REFERENCE_FIELDS);
+    if (!result) return;
+    update('characterReferences', [...(data.characterReferences || []), result]);
+  };
+  const updateCharacterReference = (idx, updates) => {
+    const refs = [...(data.characterReferences || [])];
+    refs[idx] = { ...refs[idx], ...updates };
+    update('characterReferences', refs);
+  };
+  const removeCharacterReference = (idx) => {
+    update('characterReferences', (data.characterReferences || []).filter((_, i) => i !== idx));
   };
 
   return (
@@ -393,6 +444,46 @@ export default function ResumeForm({ version, onSave }) {
         </div>
       </div>
 
+      {/* Character References */}
+      <div className="terminal-card !p-0">
+        <header className="terminal-header bg-[var(--terminal-header)]">
+          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">CHARACTER_REFERENCES</span>
+          <button onClick={addCharacterReference} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">
+            [ADD_REFERENCE]
+          </button>
+        </header>
+        <div className="p-6 space-y-6">
+          {(data.characterReferences || []).map((ref, idx) => (
+            <div key={idx} className="border-l-2 border-[var(--terminal-border)] pl-4 group">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-[10px] text-[var(--terminal-muted)] font-bold">REF_RECORD_0{idx + 1}</span>
+                <button
+                  onClick={async () => {
+                    const ok = await confirm('Are you sure you want to purge this character reference?');
+                    if (ok) removeCharacterReference(idx);
+                  }}
+                  className="text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  [PURGE]
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TerminalField label="Full_Name" value={ref.fullName || ''} onChange={e => updateCharacterReference(idx, { fullName: e.target.value })} placeholder="Juan Dela Cruz" />
+                <TerminalField label="Position" value={ref.position || ''} onChange={e => updateCharacterReference(idx, { position: e.target.value })} placeholder="Senior Manager" />
+                <TerminalField label="Company" value={ref.company || ''} onChange={e => updateCharacterReference(idx, { company: e.target.value })} placeholder="Acme Corp" />
+                <TerminalField label="Email_Address" value={ref.email || ''} onChange={e => updateCharacterReference(idx, { email: e.target.value })} placeholder="juan@company.com" type="email" />
+                <TerminalField label="Contact_Number" value={ref.phone || ''} onChange={e => updateCharacterReference(idx, { phone: e.target.value })} placeholder="+63-XXX-XXX-XXXX" />
+              </div>
+            </div>
+          ))}
+          {(data.characterReferences || []).length === 0 && (
+            <div className="text-center py-8 text-[var(--terminal-muted)] text-xs italic">
+              [NO_REFERENCES_REGISTERED]
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Save Button */}
       <div className="flex justify-end">
         <button onClick={handleSave} className="btn-terminal btn-terminal-primary px-10 py-3 text-sm">
@@ -403,4 +494,3 @@ export default function ResumeForm({ version, onSave }) {
     </div>
   );
 }
-

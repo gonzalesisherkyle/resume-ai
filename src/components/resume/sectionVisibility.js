@@ -5,6 +5,7 @@ export const RESUME_SECTION_OPTIONS = [
   { key: 'projects', label: 'Projects' },
   { key: 'education', label: 'Education' },
   { key: 'certifications', label: 'Certifications' },
+  { key: 'characterReferences', label: 'Character References' },
 ];
 
 export const DEFAULT_SECTION_VISIBILITY = RESUME_SECTION_OPTIONS.reduce((visibility, section) => ({

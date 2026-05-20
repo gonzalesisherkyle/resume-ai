@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import Modal from '../components/common/Modal';
+import FormModal from '../components/common/FormModal';
 
 const ModalContext = createContext();
 
@@ -12,6 +13,13 @@ export function ModalProvider({ children }) {
     cancelText: 'CANCEL',
     resolve: null,
     isConfirm: false
+  });
+
+  const [formModalConfig, setFormModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    fields: [],
+    resolve: null,
   });
 
   const showAlert = useCallback((message, title = 'SYSTEM_ALERT') => {
@@ -42,6 +50,17 @@ export function ModalProvider({ children }) {
     });
   }, []);
 
+  const showFormModal = useCallback((title, fields) => {
+    return new Promise((resolve) => {
+      setFormModalConfig({
+        isOpen: true,
+        title,
+        fields,
+        resolve,
+      });
+    });
+  }, []);
+
   const handleClose = () => {
     if (modalConfig.resolve) modalConfig.resolve(false);
     setModalConfig(prev => ({ ...prev, isOpen: false }));
@@ -52,8 +71,18 @@ export function ModalProvider({ children }) {
     setModalConfig(prev => ({ ...prev, isOpen: false }));
   };
 
+  const handleFormSubmit = (data) => {
+    if (formModalConfig.resolve) formModalConfig.resolve(data);
+    setFormModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleFormCancel = () => {
+    if (formModalConfig.resolve) formModalConfig.resolve(null);
+    setFormModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
   return (
-    <ModalContext.Provider value={{ alert: showAlert, confirm: showConfirm }}>
+    <ModalContext.Provider value={{ alert: showAlert, confirm: showConfirm, formModal: showFormModal }}>
       {children}
       <Modal 
         isOpen={modalConfig.isOpen} 
@@ -82,6 +111,18 @@ export function ModalProvider({ children }) {
           <span className="text-[var(--terminal-accent)] font-bold">{'>'}</span>
           <p className="text-[var(--terminal-text)]">{modalConfig.message}</p>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={formModalConfig.isOpen}
+        title={formModalConfig.title}
+        onClose={handleFormCancel}
+      >
+        <FormModal
+          fields={formModalConfig.fields}
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+        />
       </Modal>
     </ModalContext.Provider>
   );
