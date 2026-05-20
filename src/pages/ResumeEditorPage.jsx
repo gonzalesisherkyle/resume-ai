@@ -38,6 +38,31 @@ export default function ResumeEditorPage() {
     void Promise.resolve().then(fetchResume);
   }, [fetchResume]);
 
+  useEffect(() => {
+    const handleScrollLock = () => {
+      const isMobile = window.innerWidth < 768; // md is 768px
+      const shouldLock = showChat && isMobile;
+
+      document.body.style.overflow = shouldLock ? 'hidden' : '';
+      const mainContainer = document.querySelector('main');
+      if (mainContainer) {
+        mainContainer.style.overflow = shouldLock ? 'hidden' : '';
+      }
+    };
+
+    handleScrollLock();
+
+    window.addEventListener('resize', handleScrollLock);
+    return () => {
+      window.removeEventListener('resize', handleScrollLock);
+      document.body.style.overflow = '';
+      const mainContainer = document.querySelector('main');
+      if (mainContainer) {
+        mainContainer.style.overflow = '';
+      }
+    };
+  }, [showChat]);
+
   const activeVersion = resume?.versions?.[resume.activeVersionIndex] || resume?.versions?.[0];
 
   const saveResume = useCallback(async (versionData) => {
@@ -238,7 +263,7 @@ export default function ResumeEditorPage() {
               {exporting ? 'EXPORTING...' : 'EXPORT ▾'}
             </button>
             {!exporting && (
-              <div className="absolute right-0 mt-1 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[100px]">
+              <div className="absolute right-0 mt-1 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded-none shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 min-w-[100px]">
                 <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">PDF_FORMAT</button>
                 <button onClick={() => handleExport('docx')} className="block w-full text-left px-4 py-2 text-[10px] text-[var(--terminal-text)] hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)]">DOCX_FORMAT</button>
               </div>
@@ -265,18 +290,12 @@ export default function ResumeEditorPage() {
               UNSHARE
             </button>
           )}
-          <button
-            onClick={() => setShowChat(!showChat)}
-            className={`btn-terminal text-xs ${showChat ? '!border-[var(--terminal-accent)] !text-[var(--terminal-accent)]' : ''}`}
-          >
-            CHAT_HELPER
-          </button>
         </div>
       </div>
 
       {/* Editor Main Section */}
       <div className="flex flex-col lg:flex-row gap-8 relative">
-        <div className={`flex-1 min-w-0 transition-all ${showChat ? 'lg:mr-80' : ''}`}>
+        <div className="flex-1 min-w-0 transition-all">
           {/* Internal Tabs */}
           <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 border-b border-[var(--terminal-border)] overflow-x-auto no-scrollbar">
             {['edit', 'preview', 'score'].map(tab => (
@@ -301,7 +320,7 @@ export default function ResumeEditorPage() {
               <ResumeForm version={activeVersion} onSave={saveResume} />
             )}
             {activeTab === 'preview' && activeVersion && (
-              <div className="bg-white rounded p-4 overflow-auto max-h-[70vh] md:max-h-[800px]">
+              <div className="bg-white rounded-none p-4 overflow-auto max-h-[70vh] md:max-h-[800px]">
                 <ResumePreview version={activeVersion} />
               </div>
             )}
@@ -310,16 +329,60 @@ export default function ResumeEditorPage() {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Floating Chat Sidebar (Internal) */}
+      {/* Floating Chatbot Widget */}
+      <div className="fixed bottom-10 right-6 z-50 font-mono">
+        {/* Chatbot Toggle Button (Circle) */}
+        <button
+          onClick={() => setShowChat(!showChat)}
+          className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl focus:outline-none focus:ring-2 focus:ring-[var(--terminal-accent)] focus:ring-offset-2 focus:ring-offset-[var(--terminal-bg)] relative group ${
+            showChat
+              ? 'bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400'
+              : 'bg-[var(--terminal-surface)] hover:bg-[var(--terminal-header)] border border-[var(--terminal-accent)] text-[var(--terminal-accent)] shadow-[0_0_15px_rgba(0,243,255,0.15)] hover:shadow-[0_0_25px_rgba(0,243,255,0.3)]'
+          }`}
+          aria-label="Toggle AI Assistant"
+        >
+          {showChat ? (
+            <svg className="w-6 h-6 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 w-full h-full rounded-full bg-[var(--terminal-accent)]/15 animate-ping opacity-75"></div>
+              <svg className="w-7 h-7 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+          )}
+        </button>
+
+        {/* Chat Widget Panel */}
         {showChat && (
-          <div className="lg:fixed lg:right-8 lg:top-32 lg:bottom-12 w-full lg:w-80 terminal-window z-30 mt-8 lg:mt-0">
-            <header className="terminal-header">
-              <span className="text-[10px] uppercase font-bold text-[var(--terminal-accent)]">AI_ASSISTANT_TERMINAL</span>
-              <button onClick={() => setShowChat(false)} className="lg:hidden text-[var(--terminal-muted)] ml-auto text-[10px]">[CLOSE]</button>
-            </header>
-            <div className="h-[400px] lg:h-full overflow-hidden">
-              <AIChatAssistant resumeId={id} />
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 md:absolute md:inset-auto md:bottom-20 md:right-0 md:bg-transparent md:p-0 md:block md:w-96 md:h-[550px] md:max-h-[calc(100vh-140px)] animate-slide-up"
+            onClick={() => setShowChat(false)}
+          >
+            <div
+              className="w-full max-w-lg md:max-w-none h-[500px] md:h-full terminal-window flex flex-col shadow-[0_10px_50px_rgba(0,0,0,0.5)] border border-[var(--terminal-border)] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <header className="terminal-header flex justify-between items-center bg-[var(--terminal-header)] border-b border-[var(--terminal-border)] px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[var(--terminal-accent)] rounded-full animate-pulse" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--terminal-accent)]">AI_ASSISTANT_TERMINAL</span>
+                </div>
+                <button
+                  onClick={() => setShowChat(false)}
+                  className="text-[var(--terminal-muted)] hover:text-white transition-colors text-xs p-1"
+                  aria-label="Close Chat"
+                >
+                  [CLOSE]
+                </button>
+              </header>
+              <div className="flex-1 min-h-0 overflow-hidden bg-[var(--terminal-bg)]">
+                <AIChatAssistant resumeId={id} />
+              </div>
             </div>
           </div>
         )}

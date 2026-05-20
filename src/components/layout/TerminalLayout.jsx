@@ -68,32 +68,6 @@ const TerminalLayout = ({ children }) => {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - File Explorer Style */}
-        <aside className="w-64 border-r border-[var(--terminal-border)] bg-[var(--terminal-surface)] hidden lg:flex flex-col select-none">
-          <div className="px-4 py-2 text-[var(--terminal-muted)] text-xs uppercase tracking-widest border-b border-[var(--terminal-border)]">
-            Explorer
-          </div>
-          <div className="p-2 space-y-1">
-            <div className="flex items-center gap-2 px-2 py-1 text-sm text-[var(--terminal-accent)]">
-              <span className="opacity-70">▼</span> RESUME_PROJECT
-            </div>
-            <div className="pl-6 space-y-1">
-              <div className="flex items-center gap-2 px-2 py-1 text-sm hover:bg-[var(--terminal-header)] rounded cursor-pointer">
-                <span className="text-[var(--terminal-amber)]">📄</span> personal_info.json
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 text-sm hover:bg-[var(--terminal-header)] rounded cursor-pointer">
-                <span className="text-[var(--terminal-green)]">📄</span> experience.yaml
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 text-sm hover:bg-[var(--terminal-header)] rounded cursor-pointer">
-                <span className="text-blue-400">📄</span> education.toml
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 text-sm hover:bg-[var(--terminal-header)] rounded cursor-pointer text-[var(--terminal-muted)]">
-                <span>📄</span> skills.config
-              </div>
-            </div>
-          </div>
-        </aside>
-
         {/* Main Content */}
         <main className="flex-1 overflow-auto bg-[var(--terminal-bg)] p-4 md:p-8 relative">
           <div className="max-w-5xl mx-auto">

@@ -190,19 +190,24 @@ export default function ResumeForm({ version, onSave }) {
   };
 
   return (
-    <div className="space-y-8 font-mono pb-20">
+    <>
       {/* Save bar */}
       {dirty && (
-        <div className="sticky top-0 z-30 bg-[var(--terminal-bg)] border border-[var(--terminal-accent)] p-3 flex items-center justify-between shadow-[0_0_20px_rgba(0,255,255,0.1)] animate-pulse">
-          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--terminal-accent)] rounded-full" />
-            BUFFER_MODIFIED: [UNSAVED_CHANGES]
+        <div className="fixed bottom-10 left-6 right-24 md:right-auto md:w-fit z-40 bg-[var(--terminal-surface)] border border-[var(--terminal-accent)] p-3 flex items-center gap-4 justify-between shadow-[0_0_20px_rgba(0,243,255,0.15)] rounded-none animate-pulse">
+          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+            <span className="w-2 h-2 bg-[var(--terminal-accent)] rounded-full animate-ping" />
+            <span className="hidden sm:inline">BUFFER_MODIFIED: </span>[UNSAVED_CHANGES]
           </span>
-          <button onClick={handleSave} className="text-[10px] font-bold text-[var(--terminal-bg)] bg-[var(--terminal-accent)] px-4 py-1 hover:opacity-90">
+          <button
+            onClick={handleSave}
+            className="text-[10px] font-bold text-[var(--terminal-bg)] bg-[var(--terminal-accent)] px-3 py-1.5 hover:opacity-90 rounded-none whitespace-nowrap"
+          >
             COMMIT_CHANGES
           </button>
         </div>
       )}
+
+      <div className="space-y-8 font-mono pb-20">
 
       {/* Styling & Templates */}
       <div className="terminal-card !p-0">
@@ -533,5 +538,6 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
     </div>
+    </>
   );
 }

@@ -84,20 +84,20 @@ export default function AIChatAssistant({ resumeId }) {
       <div className="p-4 border-t border-[var(--terminal-border)]">
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--terminal-accent)] text-xs">{'>'}</span>
+            <span className="absolute left-3 top-0 bottom-0 flex items-center text-[var(--terminal-accent)] text-xs leading-none">{'>'}</span>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="ENTER_QUERY..."
-              className="input-terminal !pl-8 !py-2 !text-xs"
+              className="input-terminal !pl-8 !text-xs h-9"
               disabled={loading}
             />
           </div>
           <button
             onClick={sendMessage}
             disabled={loading || !input.trim()}
-            className="btn-terminal btn-terminal-primary !px-4 !py-2 text-[10px] font-bold"
+            className="btn-terminal btn-terminal-primary !px-4 text-[10px] font-bold h-9 flex items-center justify-center"
           >
             EXEC
           </button>
