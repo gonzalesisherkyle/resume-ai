@@ -2,7 +2,7 @@ export default function ATSScoreCard({ score }) {
   if (!score || !score.overall) {
     return (
       <div className="terminal-card text-center py-20 opacity-40">
-        <div className="text-4xl mb-4">🔍</div>
+        <svg className="w-10 h-10 mb-4 text-[var(--terminal-accent)] mx-auto animate-pulse" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         <div className="text-xs uppercase tracking-widest font-mono">System_Awaiting_Analysis_Data...</div>
       </div>
     );

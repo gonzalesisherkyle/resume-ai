@@ -1,7 +1,7 @@
 import { useModal } from '../../context/ModalContext';
 import TerminalField from '../common/TerminalField';
 
-export default function SectionEditor({ title, items, onAdd, onUpdate, onRemove, type }) {
+export default function SectionEditor({ id, title, items, onAdd, onUpdate, onRemove, type }) {
   const { confirm } = useModal();
   const addBullet = (idx) => {
     const bullets = [...(items[idx].bullets || []), { text: '' }];
@@ -18,7 +18,7 @@ export default function SectionEditor({ title, items, onAdd, onUpdate, onRemove,
   };
 
   return (
-    <div className="terminal-card !p-0 overflow-hidden">
+    <div id={id} className="terminal-card !p-0 overflow-hidden">
       <header className="terminal-header bg-[var(--terminal-header)]">
         <div className="flex items-center gap-2 flex-1">
           <span className="text-[var(--terminal-accent)] text-xs font-bold uppercase tracking-widest">{title}</span>
@@ -69,7 +69,7 @@ export default function SectionEditor({ title, items, onAdd, onUpdate, onRemove,
             </div>
 
             {/* Bullets */}
-            <div className="space-y-2 bg-[var(--terminal-surface)] p-3 md:p-4 border border-[var(--terminal-border)] rounded">
+            <div className="space-y-2 bg-[var(--terminal-surface)] p-3 md:p-4 border border-[var(--terminal-border)] rounded-none">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[10px] uppercase font-bold text-[var(--terminal-muted)] tracking-widest">Description_Log_Entries</label>
                 <button onClick={() => addBullet(idx)} className="text-[10px] text-[var(--terminal-accent)] hover:underline">+ ADD_ENTRY</button>

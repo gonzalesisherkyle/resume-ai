@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import SectionEditor from './SectionEditor';
 import { useModal } from '../../context/ModalContext';
 import TerminalField from '../common/TerminalField';
@@ -192,25 +193,29 @@ export default function ResumeForm({ version, onSave }) {
   return (
     <>
       {/* Save bar */}
-      {dirty && (
-        <div className="fixed bottom-10 left-6 right-24 md:right-auto md:w-fit z-40 bg-[var(--terminal-surface)] border border-[var(--terminal-accent)] p-3 flex items-center gap-4 justify-between shadow-[0_0_20px_rgba(0,243,255,0.15)] rounded-none animate-pulse">
-          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
-            <span className="w-2 h-2 bg-[var(--terminal-accent)] rounded-full animate-ping" />
-            <span className="hidden sm:inline">BUFFER_MODIFIED: </span>[UNSAVED_CHANGES]
+      {dirty && createPortal(
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 lg:left-[270px] lg:translate-x-0 z-40 bg-black/80 border border-brand-500/30 px-4 py-3 flex items-center gap-4 shadow-glass backdrop-blur-md rounded-none animate-slide-up">
+          <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest flex items-center gap-2.5 whitespace-nowrap">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--terminal-accent)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--terminal-accent)]"></span>
+            </span>
+            <span>UNSAVED_CHANGES</span>
           </span>
           <button
             onClick={handleSave}
-            className="text-[10px] font-bold text-[var(--terminal-bg)] bg-[var(--terminal-accent)] px-3 py-1.5 hover:opacity-90 rounded-none whitespace-nowrap"
+            className="text-[10px] font-bold text-surface-900 bg-[var(--terminal-accent)] px-3.5 py-1.5 hover:bg-brand-400 hover:shadow-neon transition-all duration-300 rounded-none whitespace-nowrap"
           >
             COMMIT_CHANGES
           </button>
-        </div>
+        </div>,
+        document.body
       )}
 
       <div className="space-y-8 font-mono pb-20">
 
       {/* Styling & Templates */}
-      <div className="terminal-card !p-0">
+      <div id="render-config" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">RENDER_CONFIG</span>
         </header>
@@ -302,7 +307,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Contact Information */}
-      <div className="terminal-card !p-0">
+      <div id="identity-block" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">IDENTITY_BLOCK</span>
         </header>
@@ -318,7 +323,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Target Role */}
-      <div className="terminal-card !p-0">
+      <div id="targeting-metrics" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">TARGETING_METRICS</span>
         </header>
@@ -339,7 +344,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Professional Summary */}
-      <div className="terminal-card !p-0">
+      <div id="summary-log" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">EXECUTIVE_SUMMARY_LOG</span>
         </header>
@@ -349,7 +354,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Technical Skills */}
-      <div className="terminal-card !p-0">
+      <div id="core-competencies" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">CORE_COMPETENCIES</span>
           <button onClick={addSkillCategory} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">
@@ -399,6 +404,7 @@ export default function ResumeForm({ version, onSave }) {
 
       {/* Experience */}
       <SectionEditor
+        id="experience-chronology"
         title="EXPERIENCE_CHRONOLOGY"
         items={data.experience || []}
         onAdd={addExperience}
@@ -409,6 +415,7 @@ export default function ResumeForm({ version, onSave }) {
 
       {/* Projects */}
       <SectionEditor
+        id="project-portfolio"
         title="PROJECT_PORTFOLIO"
         items={data.projects || []}
         onAdd={addProject}
@@ -418,7 +425,7 @@ export default function ResumeForm({ version, onSave }) {
       />
 
       {/* Education */}
-      <div className="terminal-card !p-0">
+      <div id="academic-records" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">ACADEMIC_RECORDS</span>
           <button onClick={addEducation} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">
@@ -452,7 +459,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Certifications */}
-      <div className="terminal-card !p-0">
+      <div id="certification-registry" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">CERTIFICATION_REGISTRY</span>
           <button onClick={addCertification} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">
@@ -491,7 +498,7 @@ export default function ResumeForm({ version, onSave }) {
       </div>
 
       {/* Character References */}
-      <div className="terminal-card !p-0">
+      <div id="character-references" className="terminal-card !p-0">
         <header className="terminal-header bg-[var(--terminal-header)]">
           <span className="text-[10px] text-[var(--terminal-accent)] font-bold uppercase tracking-widest">CHARACTER_REFERENCES</span>
           <button onClick={addCharacterReference} className="text-[10px] text-[var(--terminal-accent)] hover:underline font-bold">

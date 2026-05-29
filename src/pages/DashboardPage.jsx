@@ -168,7 +168,7 @@ export default function DashboardPage() {
               >
                 <div className="flex flex-col md:grid md:grid-cols-12 gap-4 items-start md:items-center px-4 md:px-6 py-4">
                   <div className="w-full md:col-span-4 flex items-center gap-3">
-                    <span className="text-[var(--terminal-amber)] text-xl flex-shrink-0">📄</span>
+                    <svg className="w-5 h-5 text-[var(--terminal-amber)] flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                     <div className="overflow-hidden min-w-0">
                       <div className="text-white font-bold group-hover:text-[var(--terminal-accent)] transition-colors truncate">
                         {resume.title.endsWith('.json') ? resume.title : `${resume.title.replace(/\s+/g, '_').toLowerCase()}.json`}

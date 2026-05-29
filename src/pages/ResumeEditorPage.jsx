@@ -320,7 +320,7 @@ export default function ResumeEditorPage() {
               <ResumeForm version={activeVersion} onSave={saveResume} />
             )}
             {activeTab === 'preview' && activeVersion && (
-              <div className="bg-white rounded-none p-4 overflow-auto max-h-[70vh] md:max-h-[800px]">
+              <div className="bg-black/45 border border-white/5 rounded-xl p-4 md:p-8 overflow-auto max-h-[70vh] md:max-h-[800px] shadow-inner">
                 <ResumePreview version={activeVersion} />
               </div>
             )}

@@ -95,7 +95,7 @@ export default function PublicResumePage() {
           </Link>
         </header>
 
-        <div className="overflow-auto pb-8">
+        <div className="bg-black/30 border border-white/5 rounded-xl p-4 md:p-8 overflow-auto pb-8 shadow-inner">
           {resume?.version && <ResumePreview version={resume.version} />}
         </div>
       </main>

@@ -1,105 +1,120 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --terminal-bg: #0a0a0a;
-  --terminal-surface: #141414;
-  --terminal-header: #1e1e1e;
-  --terminal-accent: #00f3ff;
-  --terminal-green: #00ff41;
-  --terminal-amber: #ffb000;
-  --terminal-red: #ff5555;
-  --terminal-text: #d4d4d4;
-  --terminal-muted: #6b7280;
-  --terminal-border: #262626;
-  --terminal-selection: rgba(0, 243, 255, 0.2);
+  --terminal-bg: #050505;
+  --terminal-surface: rgba(10, 10, 10, 0.7);
+  --terminal-header: rgba(20, 20, 20, 0.85);
+  --terminal-accent: #14b8a6;
+  --terminal-accent-glow: rgba(20, 184, 166, 0.15);
+  --terminal-green: #10b981;
+  --terminal-amber: #f59e0b;
+  --terminal-red: #ef4444;
+  --terminal-text: #e2e8f0;
+  --terminal-muted: #64748b;
+  --terminal-border: rgba(255, 255, 255, 0.08);
+  --terminal-selection: rgba(20, 184, 166, 0.2);
 }
 
 @layer base {
   body {
-    @apply bg-[var(--terminal-bg)] text-[var(--terminal-text)] min-h-screen selection:bg-[var(--terminal-selection)];
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-[var(--terminal-bg)] text-[var(--terminal-text)] min-h-screen selection:bg-[var(--terminal-selection)] relative overflow-x-hidden;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(at 30% 20%, rgba(20, 184, 166, 0.08) 0px, transparent 40%),
+                radial-gradient(at 80% 80%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(20, 184, 166, 0.03) 0px, transparent 30%);
+    pointer-events: none;
+    z-index: -1;
   }
 
   code, pre, .font-mono {
-    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    font-family: 'Space Grotesk', 'JetBrains Mono', monospace;
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-[var(--terminal-bg)];
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-[var(--terminal-border)] border-2 border-[var(--terminal-bg)] rounded-full hover:bg-[var(--terminal-muted)];
+    @apply bg-white/10 hover:bg-brand-500/30 rounded-full transition-colors;
   }
 }
 
 @layer components {
   .terminal-window {
-    @apply bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded-none shadow-2xl overflow-hidden;
+    @apply bg-[var(--terminal-surface)] border border-[var(--terminal-border)] rounded-none shadow-glass overflow-hidden backdrop-blur-xl transition-all duration-300;
   }
 
   .terminal-header {
-    @apply bg-[var(--terminal-header)] border-b border-[var(--terminal-border)] px-4 py-2 flex items-center gap-2;
+    @apply bg-[var(--terminal-header)] border-b border-[var(--terminal-border)] px-4 py-3 flex items-center gap-2;
   }
 
   .terminal-dot {
-    @apply w-3 h-3 rounded-full;
+    @apply w-2.5 h-2.5 rounded-full transition-all duration-300;
   }
 
   .btn-terminal {
-    @apply px-4 py-2 bg-[var(--terminal-bg)] border border-[var(--terminal-border)] text-[var(--terminal-text)] 
-           hover:border-[var(--terminal-accent)] hover:text-[var(--terminal-accent)] transition-all duration-200
-           font-mono text-sm uppercase tracking-wider disabled:opacity-50;
+    @apply px-4 py-2 bg-white/5 border border-[var(--terminal-border)] text-slate-300 
+           hover:border-brand-500/50 hover:text-brand-400 hover:bg-brand-500/5 transition-all duration-300
+           font-mono text-xs uppercase tracking-wider disabled:opacity-50 disabled:pointer-events-none rounded-none;
   }
 
   .btn-terminal-primary {
-    @apply bg-[var(--terminal-accent)] text-[var(--terminal-bg)] border-transparent font-bold
-           hover:bg-[var(--terminal-bg)] hover:text-[var(--terminal-accent)] hover:border-[var(--terminal-accent)];
+    @apply bg-[var(--terminal-accent)] text-surface-900 border-transparent font-bold
+           hover:bg-brand-400 hover:text-surface-900 hover:shadow-neon;
   }
 
   .input-terminal {
-    @apply w-full bg-[var(--terminal-bg)] border border-[var(--terminal-border)] px-4 py-2 
+    @apply w-full bg-black/45 border border-[var(--terminal-border)] px-4 py-2 rounded-none
            text-[var(--terminal-text)] font-mono placeholder-[var(--terminal-muted)]
-           outline-none transition-all duration-200;
+           outline-none transition-all duration-300;
     caret-color: var(--terminal-accent);
   }
 
   .input-terminal:hover {
-    border-color: color-mix(in srgb, var(--terminal-border) 60%, var(--terminal-muted));
+    border-color: rgba(20, 184, 166, 0.3);
   }
 
   .input-terminal:focus,
   .input-terminal:focus-visible,
   .input-terminal:active {
     border-color: var(--terminal-accent);
-    background: var(--terminal-bg);
-    box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.22), 0 0 18px rgba(0, 243, 255, 0.12);
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.25), 0 0 15px rgba(20, 184, 166, 0.1);
   }
 
   .terminal-label {
-    @apply block text-xs font-mono text-[var(--terminal-muted)] uppercase mb-1 tracking-widest;
+    @apply block text-[10px] font-mono text-[var(--terminal-muted)] uppercase mb-1.5 tracking-widest font-semibold;
   }
 
   .terminal-card {
-    @apply p-6 bg-[var(--terminal-surface)] border border-[var(--terminal-border)] hover:border-[var(--terminal-accent)] transition-colors;
+    @apply p-6 bg-white/[0.015] border border-[var(--terminal-border)] hover:border-brand-500/20 hover:bg-white/[0.03] hover:shadow-glass-hover rounded-none transition-all duration-300;
   }
 
   .scanline {
     width: 100%;
     height: 100px;
     z-index: 99;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0, 0, 0, 0) 100%);
-    opacity: 0.1;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(20, 184, 166, 0.01) 50%, rgba(0, 0, 0, 0) 100%);
+    opacity: 0.2;
     position: absolute;
     bottom: 100%;
-    animation: scanline 10s linear infinite;
+    animation: scanline 15s linear infinite;
     pointer-events: none;
   }
 }

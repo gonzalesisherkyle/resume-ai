@@ -66,7 +66,7 @@ export default function JobAnalyzerPage() {
         <div className="space-y-6">
           {!analysis && !loading && (
             <div className="terminal-card border-dashed flex flex-col items-center justify-center py-20 opacity-30">
-              <div className="text-3xl mb-4">📡</div>
+              <svg className="w-10 h-10 mb-4 text-[var(--terminal-accent)] animate-pulse" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
               <div className="text-xs uppercase tracking-widest">Awaiting_Input_Data</div>
             </div>
           )}
